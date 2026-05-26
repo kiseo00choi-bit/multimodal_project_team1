@@ -194,6 +194,21 @@ outputs/figures/
 outputs/runs/
 ```
 
+Learning curve 비교 그림은 다음 명령으로 다시 생성할 수 있습니다.
+
+```powershell
+.\.venv5070\Scripts\python.exe scripts\plot_learning_curves.py
+```
+
+이 스크립트는 모델별 개별 learning curve와 함께, 모든 full-run 모델을 같은 x축/y축 기준으로 비교할 수 있는 통합 그림도 생성합니다.
+
+```text
+outputs/figures/all_models_learning_curves_shared_axes.png
+outputs/figures/all_models_validation_loss_overlay.png
+outputs/figures/all_models_validation_macro_f1_overlay.png
+outputs/figures/all_models_validation_accuracy_overlay.png
+```
+
 대용량 데이터와 학습 결과물은 git에는 포함하지 않습니다.
 
 ## Results
