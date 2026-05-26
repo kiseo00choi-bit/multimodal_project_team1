@@ -1,0 +1,89 @@
+<!-- Extracted from C_3_9_34_BU_SYB_10-04_12-44-35_CC_RGB_DF2_F3.xml -->
+<!-- video_stem=C_3_9_34_BU_SYB_10-04_12-44-35_CC_RGB_DF2_F3, class=09 fire, frame=113 -->
+<annotations_frame_sample>
+  <track id="297" label="Pelvis">
+    <points frame="113" outside="0" occluded="0" keyframe="1" points="1230,423" z_order="0">
+      <attribute name="ID">0</attribute>
+    </points>
+  </track>
+  <track id="294" label="Left hip">
+    <points frame="113" outside="0" occluded="0" keyframe="1" points="1237,432" z_order="0">
+      <attribute name="ID">0</attribute>
+    </points>
+  </track>
+  <track id="295" label="Left knee">
+    <points frame="113" outside="0" occluded="0" keyframe="1" points="1180,514" z_order="0">
+      <attribute name="ID">0</attribute>
+    </points>
+  </track>
+  <track id="296" label="Left foot">
+    <points frame="113" outside="0" occluded="0" keyframe="1" points="1157,601" z_order="0">
+      <attribute name="ID">0</attribute>
+    </points>
+  </track>
+  <track id="292" label="Right knee">
+    <points frame="113" outside="0" occluded="0" keyframe="1" points="1166,500" z_order="0">
+      <attribute name="ID">0</attribute>
+    </points>
+  </track>
+  <track id="291" label="Right foot">
+    <points frame="113" outside="0" occluded="0" keyframe="1" points="1153,577" z_order="0">
+      <attribute name="ID">0</attribute>
+    </points>
+  </track>
+  <track id="306" label="Spine naval">
+    <points frame="113" outside="0" occluded="0" keyframe="1" points="1199,427" z_order="0">
+      <attribute name="ID">0</attribute>
+    </points>
+  </track>
+  <track id="307" label="Spine chest">
+    <points frame="113" outside="0" occluded="0" keyframe="1" points="1132,429" z_order="0">
+      <attribute name="ID">0</attribute>
+    </points>
+  </track>
+  <track id="298" label="Neck base">
+    <points frame="113" outside="0" occluded="0" keyframe="1" points="1089,435" z_order="0">
+      <attribute name="ID">0</attribute>
+    </points>
+  </track>
+  <track id="305" label="Center head">
+    <points frame="113" outside="0" occluded="0" keyframe="1" points="1059,435" z_order="0">
+      <attribute name="ID">0</attribute>
+    </points>
+  </track>
+  <track id="302" label="Left shoulder">
+    <points frame="113" outside="0" occluded="0" keyframe="1" points="1097,452" z_order="0">
+      <attribute name="ID">0</attribute>
+    </points>
+  </track>
+  <track id="303" label="Left elbow">
+    <points frame="113" outside="0" occluded="0" keyframe="1" points="1106,522" z_order="0">
+      <attribute name="ID">0</attribute>
+    </points>
+  </track>
+  <track id="304" label="Left hand">
+    <points frame="113" outside="0" occluded="0" keyframe="1" points="1085,571" z_order="0">
+      <attribute name="ID">0</attribute>
+    </points>
+  </track>
+  <track id="301" label="Right shoulder">
+    <points frame="113" outside="0" occluded="0" keyframe="1" points="1104,413" z_order="0">
+      <attribute name="ID">0</attribute>
+    </points>
+  </track>
+  <track id="300" label="Right elbow">
+    <points frame="113" outside="0" occluded="0" keyframe="1" points="1164,456" z_order="0">
+      <attribute name="ID">0</attribute>
+    </points>
+  </track>
+  <track id="299" label="Right hand">
+    <points frame="113" outside="0" occluded="0" keyframe="1" points="1142,523" z_order="0">
+      <attribute name="ID">0</attribute>
+    </points>
+  </track>
+  <track id="293" label="Right  hip">
+    <points frame="113" outside="0" occluded="0" keyframe="1" points="1224,419" z_order="0">
+      <attribute name="ID">0</attribute>
+    </points>
+  </track>
+</annotations_frame_sample>

@@ -1,0 +1,101 @@
+<!-- Extracted from C_3_11_34_BU_DYA_08-10_16-33-05_CA_RGB_DF2_M2_F2.xml -->
+<!-- video_stem=C_3_11_34_BU_DYA_08-10_16-33-05_CA_RGB_DF2_M2_F2, class=11 abandon, frame=127 -->
+<annotations_frame_sample>
+  <track id="796" label="Pelvis">
+    <points frame="127" outside="0" occluded="0" keyframe="1" points="909,492" z_order="0">
+      <attribute name="ID">0</attribute>
+    </points>
+  </track>
+  <track id="793" label="Left hip">
+    <points frame="127" outside="0" occluded="0" keyframe="1" points="947,494" z_order="0">
+      <attribute name="ID">0</attribute>
+    </points>
+  </track>
+  <track id="794" label="Left knee">
+    <points frame="127" outside="0" occluded="0" keyframe="1" points="970,625" z_order="0">
+      <attribute name="ID">0</attribute>
+    </points>
+  </track>
+  <track id="795" label="Left foot">
+    <points frame="127" outside="0" occluded="0" keyframe="1" points="988,706" z_order="0">
+      <attribute name="ID">0</attribute>
+    </points>
+  </track>
+  <track id="791" label="Right knee">
+    <points frame="127" outside="0" occluded="0" keyframe="1" points="864,650" z_order="0">
+      <attribute name="ID">0</attribute>
+    </points>
+  </track>
+  <track id="790" label="Right foot">
+    <points frame="127" outside="0" occluded="0" keyframe="1" points="875,772" z_order="0">
+      <attribute name="ID">0</attribute>
+    </points>
+  </track>
+  <track id="805" label="Spine naval">
+    <points frame="127" outside="0" occluded="0" keyframe="1" points="913,453" z_order="0">
+      <attribute name="ID">0</attribute>
+    </points>
+  </track>
+  <track id="806" label="Spine chest">
+    <points frame="127" outside="0" occluded="0" keyframe="1" points="925,374" z_order="0">
+      <attribute name="ID">0</attribute>
+    </points>
+  </track>
+  <track id="797" label="Neck base">
+    <points frame="127" outside="0" occluded="0" keyframe="1" points="930,301" z_order="0">
+      <attribute name="ID">0</attribute>
+    </points>
+  </track>
+  <track id="804" label="Center head">
+    <points frame="127" outside="0" occluded="0" keyframe="1" points="931,229" z_order="0">
+      <attribute name="ID">0</attribute>
+    </points>
+  </track>
+  <track id="801" label="Left shoulder">
+    <points frame="127" outside="0" occluded="0" keyframe="1" points="999,350" z_order="0">
+      <attribute name="ID">0</attribute>
+    </points>
+  </track>
+  <track id="802" label="Left elbow">
+    <points frame="127" outside="0" occluded="0" keyframe="1" points="1017,455" z_order="0">
+      <attribute name="ID">0</attribute>
+    </points>
+  </track>
+  <track id="803" label="Left hand">
+    <points frame="127" outside="0" occluded="0" keyframe="1" points="1046,546" z_order="0">
+      <attribute name="ID">0</attribute>
+    </points>
+  </track>
+  <track id="800" label="Right shoulder">
+    <points frame="127" outside="0" occluded="0" keyframe="1" points="861,317" z_order="0">
+      <attribute name="ID">0</attribute>
+    </points>
+  </track>
+  <track id="799" label="Right elbow">
+    <points frame="127" outside="0" occluded="0" keyframe="1" points="794,386" z_order="0">
+      <attribute name="ID">0</attribute>
+    </points>
+  </track>
+  <track id="798" label="Right hand">
+    <points frame="127" outside="0" occluded="0" keyframe="1" points="739,395" z_order="0">
+      <attribute name="ID">0</attribute>
+    </points>
+  </track>
+  <track id="792" label="Right  hip">
+    <points frame="127" outside="0" occluded="0" keyframe="1" points="869,491" z_order="0">
+      <attribute name="ID">0</attribute>
+    </points>
+  </track>
+  <track id="6" label="abandon_start">
+    <box frame="127" outside="0" occluded="0" keyframe="1" xtl="675.80" ytl="160.70" xbr="1069.17" ybr="835.67" z_order="0">
+      <attribute name="gender">male</attribute>
+      <attribute name="age group">young people</attribute>
+      <attribute name="ID">2</attribute>
+    </box>
+  </track>
+  <track id="2" label="object_abandon">
+    <box frame="127" outside="0" occluded="0" keyframe="1" xtl="687.20" ytl="371.40" xbr="737.87" ybr="454.95" z_order="0">
+      <attribute name="abandon ID">3</attribute>
+    </box>
+  </track>
+</annotations_frame_sample>

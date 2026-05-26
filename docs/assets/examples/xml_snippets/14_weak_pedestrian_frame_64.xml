@@ -1,0 +1,14 @@
+<!-- Extracted from C_3_14_65_BU_DYA_07-19_12-30-50_d_DF6_F4.xml -->
+<!-- video_stem=C_3_14_65_BU_DYA_07-19_12-30-50_d_DF6_F4, class=14 weak_pedestrian, frame=64 -->
+<annotations_frame_sample>
+  <track id="0" label="weak pedestrian">
+    <box frame="64" outside="0" occluded="0" keyframe="1" xtl="994.90" ytl="180.67" xbr="1042.91" ybr="247.70" z_order="0">
+      <attribute name="gender">female</attribute>
+      <attribute name="age group">advanced age</attribute>
+      <attribute name="ID">1</attribute>
+    </box>
+  </track>
+  <track id="2" label="wheelchair">
+    <box frame="64" outside="0" occluded="0" keyframe="1" xtl="992.00" ytl="217.60" xbr="1047.20" ybr="310.60" z_order="0" />
+  </track>
+</annotations_frame_sample>

@@ -130,16 +130,18 @@ data/processed/label_map.json               # class id/name mapping
 docs/assets/examples/keypoint_examples.csv
 ```
 
-| Code | Class | Example frame and keypoint overlay |
-|---|---|---|
-| 07 | fall / 전도 | <img src="docs/assets/examples/07_fall_example.png" width="420"> |
-| 08 | broken / 파손 | <img src="docs/assets/examples/08_broken_example.png" width="420"> |
-| 09 | fire / 방화 | <img src="docs/assets/examples/09_fire_example.png" width="420"> |
-| 10 | smoke / 흡연 | <img src="docs/assets/examples/10_smoke_example.png" width="420"> |
-| 11 | abandon / 유기 | <img src="docs/assets/examples/11_abandon_example.png" width="420"> |
-| 12 | theft / 절도 | <img src="docs/assets/examples/12_theft_example.png" width="420"> |
-| 13 | fight / 폭행 | <img src="docs/assets/examples/13_fight_example.png" width="420"> |
-| 14 | weak_pedestrian / 교통약자 | <img src="docs/assets/examples/14_weak_pedestrian_example.png" width="420"> |
+| Code | Class | Example frame and keypoint overlay | XML snippet for the same frame |
+|---|---|---|---|
+| 07 | fall / 전도 | <img src="docs/assets/examples/07_fall_example.png" width="420"> | [frame XML](docs/assets/examples/xml_snippets/07_fall_frame_155.xml) |
+| 08 | broken / 파손 | <img src="docs/assets/examples/08_broken_example.png" width="420"> | [frame XML](docs/assets/examples/xml_snippets/08_broken_frame_110.xml) |
+| 09 | fire / 방화 | <img src="docs/assets/examples/09_fire_example.png" width="420"> | [frame XML](docs/assets/examples/xml_snippets/09_fire_frame_113.xml) |
+| 10 | smoke / 흡연 | <img src="docs/assets/examples/10_smoke_example.png" width="420"> | [frame XML](docs/assets/examples/xml_snippets/10_smoke_frame_85.xml) |
+| 11 | abandon / 유기 | <img src="docs/assets/examples/11_abandon_example.png" width="420"> | [frame XML](docs/assets/examples/xml_snippets/11_abandon_frame_127.xml) |
+| 12 | theft / 절도 | <img src="docs/assets/examples/12_theft_example.png" width="420"> | [frame XML](docs/assets/examples/xml_snippets/12_theft_frame_114.xml) |
+| 13 | fight / 폭행 | <img src="docs/assets/examples/13_fight_example.png" width="420"> | [frame XML](docs/assets/examples/xml_snippets/13_fight_frame_111.xml) |
+| 14 | weak_pedestrian / 교통약자 | <img src="docs/assets/examples/14_weak_pedestrian_example.png" width="420"> | [frame XML](docs/assets/examples/xml_snippets/14_weak_pedestrian_frame_64.xml) |
+
+대부분의 class는 XML에 17개 관절이 `track label="Pelvis"`, `track label="Left hip"` 같은 keypoint track으로 저장되어 있습니다. `weak_pedestrian` class는 관절 keypoint가 아니라 `weak pedestrian`, `wheelchair` box track이 제공되는 샘플이 있어, 해당 예시는 같은 프레임의 box XML 조각을 함께 표시했습니다.
 
 ## Split
 
