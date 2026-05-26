@@ -1,0 +1,49 @@
+{
+  "run_name": "baseline_cnn_avg_smoke",
+  "best_valid_macro_f1": 0.020833333333333336,
+  "last_valid_accuracy": 0.0625,
+  "last_valid_macro_f1": 0.020833333333333336,
+  "seconds": 31.4,
+  "class_precision": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.1
+  ],
+  "class_recall": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.5
+  ],
+  "class_f1": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.16666666666666669
+  ],
+  "class_support": [
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2
+  ],
+  "metrics_path": "outputs\\metrics\\baseline_cnn_avg_smoke_history.csv",
+  "checkpoint_path": "outputs\\checkpoints\\baseline_cnn_avg_smoke_best.pt"
+}

@@ -1,0 +1,49 @@
+{
+  "run_name": "fusion_attention_smoke",
+  "best_valid_macro_f1": 0.050505050505050504,
+  "last_valid_accuracy": 0.125,
+  "last_valid_macro_f1": 0.050505050505050504,
+  "seconds": 32.71,
+  "class_precision": [
+    0.0,
+    0.0,
+    0.0,
+    0.1111111111111111,
+    0.14285714285714285,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "class_recall": [
+    0.0,
+    0.0,
+    0.0,
+    0.5,
+    0.5,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "class_f1": [
+    0.0,
+    0.0,
+    0.0,
+    0.1818181818181818,
+    0.22222222222222224,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "class_support": [
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2
+  ],
+  "metrics_path": "outputs\\metrics\\fusion_attention_smoke_history.csv",
+  "checkpoint_path": "outputs\\checkpoints\\fusion_attention_smoke_best.pt"
+}

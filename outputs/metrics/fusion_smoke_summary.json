@@ -1,0 +1,49 @@
+{
+  "run_name": "fusion_smoke",
+  "best_valid_macro_f1": 0.027777777777777776,
+  "last_valid_accuracy": 0.125,
+  "last_valid_macro_f1": 0.027777777777777776,
+  "seconds": 26.74,
+  "class_precision": [
+    0.125,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "class_recall": [
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "class_f1": [
+    0.2222222222222222,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "class_support": [
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2
+  ],
+  "metrics_path": "outputs\\metrics\\fusion_smoke_history.csv",
+  "checkpoint_path": "outputs\\checkpoints\\fusion_smoke_best.pt"
+}

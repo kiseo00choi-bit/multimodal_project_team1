@@ -5,7 +5,14 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 
-outputs/
+outputs/*
+!outputs/metrics/
+!outputs/metrics/**
+!outputs/figures/
+!outputs/figures/**
+outputs/checkpoints/
+outputs/logs/
+outputs/runs/
 data/processed/
 data/splits/
 data/extracted/

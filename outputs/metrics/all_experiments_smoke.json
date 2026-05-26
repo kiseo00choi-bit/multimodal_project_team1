@@ -1,0 +1,726 @@
+{
+  "train_results": [
+    {
+      "run_name": "baseline_cnn_avg_smoke",
+      "best_valid_macro_f1": 0.020833333333333336,
+      "last_valid_accuracy": 0.0625,
+      "last_valid_macro_f1": 0.020833333333333336,
+      "seconds": 31.4,
+      "class_precision": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.1
+      ],
+      "class_recall": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.5
+      ],
+      "class_f1": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.16666666666666669
+      ],
+      "class_support": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "metrics_path": "outputs\\metrics\\baseline_cnn_avg_smoke_history.csv",
+      "checkpoint_path": "outputs\\checkpoints\\baseline_cnn_avg_smoke_best.pt"
+    },
+    {
+      "run_name": "baseline_cnn_lstm_smoke",
+      "best_valid_macro_f1": 0.027777777777777776,
+      "last_valid_accuracy": 0.125,
+      "last_valid_macro_f1": 0.027777777777777776,
+      "seconds": 26.43,
+      "class_precision": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.125
+      ],
+      "class_recall": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "class_f1": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.2222222222222222
+      ],
+      "class_support": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "metrics_path": "outputs\\metrics\\baseline_cnn_lstm_smoke_history.csv",
+      "checkpoint_path": "outputs\\checkpoints\\baseline_cnn_lstm_smoke_best.pt"
+    },
+    {
+      "run_name": "baseline_keypoint_smoke",
+      "best_valid_macro_f1": 0.027777777777777776,
+      "last_valid_accuracy": 0.125,
+      "last_valid_macro_f1": 0.027777777777777776,
+      "seconds": 27.57,
+      "class_precision": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.125,
+        0.0,
+        0.0
+      ],
+      "class_recall": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "class_f1": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.2222222222222222,
+        0.0,
+        0.0
+      ],
+      "class_support": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "metrics_path": "outputs\\metrics\\baseline_keypoint_smoke_history.csv",
+      "checkpoint_path": "outputs\\checkpoints\\baseline_keypoint_smoke_best.pt"
+    },
+    {
+      "run_name": "fusion_smoke",
+      "best_valid_macro_f1": 0.027777777777777776,
+      "last_valid_accuracy": 0.125,
+      "last_valid_macro_f1": 0.027777777777777776,
+      "seconds": 26.74,
+      "class_precision": [
+        0.125,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "class_recall": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "class_f1": [
+        0.2222222222222222,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "class_support": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "metrics_path": "outputs\\metrics\\fusion_smoke_history.csv",
+      "checkpoint_path": "outputs\\checkpoints\\fusion_smoke_best.pt"
+    }
+  ],
+  "test_results": [
+    {
+      "run_name": "baseline_cnn_avg",
+      "split": "test",
+      "checkpoint_path": "outputs\\checkpoints\\baseline_cnn_avg_smoke_best.pt",
+      "checkpoint_epoch": 1,
+      "checkpoint_valid_macro_f1": 0.020833333333333336,
+      "accuracy": 0.12923076923076923,
+      "macro_f1": 0.05099129741986885,
+      "class_precision": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.10689655172413794,
+        0.14722222222222223
+      ],
+      "class_recall": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.3875,
+        0.654320987654321
+      ],
+      "class_f1": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.16756756756756758,
+        0.24036281179138322
+      ],
+      "class_support": [
+        81,
+        80,
+        82,
+        86,
+        80,
+        80,
+        80,
+        81
+      ],
+      "confusion_matrix": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          40,
+          41
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          49,
+          31
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          33,
+          49
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          16,
+          70
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          49,
+          31
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          44,
+          36
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          31,
+          49
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          28,
+          53
+        ]
+      ]
+    },
+    {
+      "run_name": "baseline_cnn_lstm",
+      "split": "test",
+      "checkpoint_path": "outputs\\checkpoints\\baseline_cnn_lstm_smoke_best.pt",
+      "checkpoint_epoch": 1,
+      "checkpoint_valid_macro_f1": 0.027777777777777776,
+      "accuracy": 0.12461538461538461,
+      "macro_f1": 0.027701778385772913,
+      "class_precision": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.12461538461538461
+      ],
+      "class_recall": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "class_f1": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.2216142270861833
+      ],
+      "class_support": [
+        81,
+        80,
+        82,
+        86,
+        80,
+        80,
+        80,
+        81
+      ],
+      "confusion_matrix": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          81
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          80
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          82
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          86
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          80
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          80
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          80
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          81
+        ]
+      ]
+    },
+    {
+      "run_name": "baseline_keypoint",
+      "split": "test",
+      "checkpoint_path": "outputs\\checkpoints\\baseline_keypoint_smoke_best.pt",
+      "checkpoint_epoch": 1,
+      "checkpoint_valid_macro_f1": 0.027777777777777776,
+      "accuracy": 0.12307692307692308,
+      "macro_f1": 0.027397260273972605,
+      "class_precision": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.12307692307692308,
+        0.0,
+        0.0
+      ],
+      "class_recall": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "class_f1": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.21917808219178084,
+        0.0,
+        0.0
+      ],
+      "class_support": [
+        81,
+        80,
+        82,
+        86,
+        80,
+        80,
+        80,
+        81
+      ],
+      "confusion_matrix": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          81,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          80,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          82,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          86,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          80,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          80,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          80,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          81,
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "run_name": "fusion",
+      "split": "test",
+      "checkpoint_path": "outputs\\checkpoints\\fusion_smoke_best.pt",
+      "checkpoint_epoch": 1,
+      "checkpoint_valid_macro_f1": 0.027777777777777776,
+      "accuracy": 0.12461538461538461,
+      "macro_f1": 0.027701778385772913,
+      "class_precision": [
+        0.12461538461538461,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "class_recall": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "class_f1": [
+        0.2216142270861833,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "class_support": [
+        81,
+        80,
+        82,
+        86,
+        80,
+        80,
+        80,
+        81
+      ],
+      "confusion_matrix": [
+        [
+          81,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          80,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          82,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          86,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          80,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          80,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          80,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          81,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ]
+    }
+  ]
+}
