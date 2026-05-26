@@ -19,7 +19,11 @@ METRIC_COLUMNS = [
 ]
 
 
-def plot_history(history_path: Path, out_dir: Path = FIGURES_DIR) -> Path:
+def plot_history(
+    history_path: Path,
+    out_dir: Path = FIGURES_DIR,
+    limits: dict[str, tuple[float, float]] | None = None,
+) -> Path:
     history = pd.read_csv(history_path)
     run_name = history_path.name.replace("_history.csv", "")
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -30,19 +34,27 @@ def plot_history(history_path: Path, out_dir: Path = FIGURES_DIR) -> Path:
     axes[0].plot(history["epoch"], history["valid_loss"], label="val")
     axes[0].set_title("Loss")
     axes[0].set_xlabel("Epoch")
+    axes[0].grid(True, alpha=0.25)
     axes[0].legend()
 
     axes[1].plot(history["epoch"], history["train_macro_f1"], label="train")
     axes[1].plot(history["epoch"], history["valid_macro_f1"], label="val")
     axes[1].set_title("Macro F1")
     axes[1].set_xlabel("Epoch")
+    axes[1].grid(True, alpha=0.25)
     axes[1].legend()
 
     axes[2].plot(history["epoch"], history["train_accuracy"], label="train")
     axes[2].plot(history["epoch"], history["valid_accuracy"], label="val")
     axes[2].set_title("Accuracy")
     axes[2].set_xlabel("Epoch")
+    axes[2].grid(True, alpha=0.25)
     axes[2].legend()
+
+    if limits is not None:
+        for axis, (metric_key, _, _, _) in zip(axes, METRIC_COLUMNS):
+            axis.set_xlim(*limits["epoch"])
+            axis.set_ylim(*limits[metric_key])
 
     fig.suptitle(run_name)
     fig.tight_layout()
@@ -157,11 +169,13 @@ def main() -> None:
         print(f"No history files found in {args.metrics_dir}")
         return
 
+    histories = load_histories(history_paths)
+    limits = axis_limits(histories)
+
     for history_path in history_paths:
-        out_path = plot_history(history_path, args.out_dir)
+        out_path = plot_history(history_path, args.out_dir, limits=limits)
         print(f"wrote={out_path}")
 
-    histories = load_histories(history_paths)
     shared_path = plot_shared_axis_grid(histories, args.out_dir)
     print(f"wrote={shared_path}")
     for out_path in plot_validation_overlay(histories, args.out_dir):
