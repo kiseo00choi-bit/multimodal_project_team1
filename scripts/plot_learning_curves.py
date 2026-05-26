@@ -12,6 +12,7 @@ import pandas as pd
 
 METRICS_DIR = Path("outputs/metrics")
 FIGURES_DIR = Path("outputs/figures")
+LEARNING_CURVES_DIR = FIGURES_DIR / "learning_curves"
 METRIC_COLUMNS = [
     ("loss", "Loss", "train_loss", "valid_loss"),
     ("macro_f1", "Macro F1", "train_macro_f1", "valid_macro_f1"),
@@ -21,7 +22,7 @@ METRIC_COLUMNS = [
 
 def plot_history(
     history_path: Path,
-    out_dir: Path = FIGURES_DIR,
+    out_dir: Path = LEARNING_CURVES_DIR,
     limits: dict[str, tuple[float, float]] | None = None,
 ) -> Path:
     history = pd.read_csv(history_path)
@@ -91,7 +92,7 @@ def axis_limits(histories: dict[str, pd.DataFrame]) -> dict[str, tuple[float, fl
     return limits
 
 
-def plot_shared_axis_grid(histories: dict[str, pd.DataFrame], out_dir: Path = FIGURES_DIR) -> Path:
+def plot_shared_axis_grid(histories: dict[str, pd.DataFrame], out_dir: Path = LEARNING_CURVES_DIR) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     run_names = list(histories.keys())
     limits = axis_limits(histories)
@@ -131,7 +132,7 @@ def plot_shared_axis_grid(histories: dict[str, pd.DataFrame], out_dir: Path = FI
     return out_path
 
 
-def plot_validation_overlay(histories: dict[str, pd.DataFrame], out_dir: Path = FIGURES_DIR) -> list[Path]:
+def plot_validation_overlay(histories: dict[str, pd.DataFrame], out_dir: Path = LEARNING_CURVES_DIR) -> list[Path]:
     out_dir.mkdir(parents=True, exist_ok=True)
     limits = axis_limits(histories)
     written = []
@@ -171,14 +172,15 @@ def main() -> None:
 
     histories = load_histories(history_paths)
     limits = axis_limits(histories)
+    learning_curve_dir = args.out_dir / "learning_curves"
 
     for history_path in history_paths:
-        out_path = plot_history(history_path, args.out_dir, limits=limits)
+        out_path = plot_history(history_path, learning_curve_dir, limits=limits)
         print(f"wrote={out_path}")
 
-    shared_path = plot_shared_axis_grid(histories, args.out_dir)
+    shared_path = plot_shared_axis_grid(histories, learning_curve_dir)
     print(f"wrote={shared_path}")
-    for out_path in plot_validation_overlay(histories, args.out_dir):
+    for out_path in plot_validation_overlay(histories, learning_curve_dir):
         print(f"wrote={out_path}")
 
 
