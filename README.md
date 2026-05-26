@@ -120,6 +120,27 @@ data/processed/label_map.json               # class id/name mapping
 | 6 | 7 | 13 | fight | 폭행 |
 | 7 | 8 | 14 | weak_pedestrian | 교통약자 |
 
+## Class Examples and Keypoints
+
+각 class별 test split 샘플 1개를 선택해 action 구간 중간 프레임을 저장했습니다. 왼쪽은 224x224 RGB 입력 프레임이고, 오른쪽은 같은 프레임에 XML keypoint를 overlay한 예시입니다.
+
+정규화된 keypoint 값은 다음 CSV에 저장했습니다. 각 샘플은 17개 관절의 `(x, y)` 좌표를 포함하며, 좌표는 원본 영상 width/height 기준으로 0~1 범위로 정규화했습니다.
+
+```text
+docs/assets/examples/keypoint_examples.csv
+```
+
+| Code | Class | Example frame and keypoint overlay |
+|---|---|---|
+| 07 | fall / 전도 | <img src="docs/assets/examples/07_fall_example.png" width="420"> |
+| 08 | broken / 파손 | <img src="docs/assets/examples/08_broken_example.png" width="420"> |
+| 09 | fire / 방화 | <img src="docs/assets/examples/09_fire_example.png" width="420"> |
+| 10 | smoke / 흡연 | <img src="docs/assets/examples/10_smoke_example.png" width="420"> |
+| 11 | abandon / 유기 | <img src="docs/assets/examples/11_abandon_example.png" width="420"> |
+| 12 | theft / 절도 | <img src="docs/assets/examples/12_theft_example.png" width="420"> |
+| 13 | fight / 폭행 | <img src="docs/assets/examples/13_fight_example.png" width="420"> |
+| 14 | weak_pedestrian / 교통약자 | <img src="docs/assets/examples/14_weak_pedestrian_example.png" width="420"> |
+
 ## Split
 
 초기 실험에서는 AI Hub `Training`을 학습에 사용하고 AI Hub `Validation`을 validation으로 사용했지만, 이 방식은 최종 test set이 따로 없는 문제가 있었습니다. 최종 실험에서는 다음 구조로 수정했습니다.
