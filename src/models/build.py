@@ -4,7 +4,7 @@ from torch import nn
 
 from src.models.cnn_avg import CNNAvgModel
 from src.models.cnn_lstm import CNNLSTMModel
-from src.models.fusion import FusionModel
+from src.models.fusion import FusionAttentionModel, FusionModel
 from src.models.keypoint_lstm import KeypointLSTMModel
 
 
@@ -23,6 +23,17 @@ def build_model(config: dict) -> nn.Module:
         return FusionModel(
             num_classes,
             keypoint_dim=int(config.get("keypoint_dim", 34)),
+            pretrained=pretrained,
+            freeze_backbone=freeze_backbone,
+        )
+    if model_name == "fusion_attention":
+        return FusionAttentionModel(
+            num_classes,
+            keypoint_dim=int(config.get("keypoint_dim", 34)),
+            attn_dim=int(config.get("attn_dim", 256)),
+            video_hidden_dim=int(config.get("video_hidden_dim", 256)),
+            pose_hidden_dim=int(config.get("pose_hidden_dim", 128)),
+            num_heads=int(config.get("num_heads", 4)),
             pretrained=pretrained,
             freeze_backbone=freeze_backbone,
         )

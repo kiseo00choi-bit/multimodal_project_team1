@@ -10,6 +10,7 @@ The goal is to compare three baseline models and one proposed multimodal fusion 
 2. CNN + LSTM baseline
 3. 1D-CNN + LSTM keypoint baseline
 4. RGB + Keypoint Fusion proposed model
+5. RGB + Keypoint Cross-Attention Fusion extension
 
 The project uses indoor store CCTV video data and XML annotation data. The XML labels contain action classes, action start/end frames, bounding boxes, and human keypoint coordinates. The final objective is to evaluate whether combining RGB video features and human pose keypoint features improves abnormal behavior classification performance compared with single-modal baselines.
 

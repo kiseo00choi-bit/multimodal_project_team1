@@ -1123,3 +1123,64 @@ baseline_cnn_avg epoch 3: train_loss=1.1177 train_f1=0.6077 valid_loss=1.0429 va
 ```
 
 따라서 수렴 문제는 모델 구조 자체의 실패라기보다 train split shuffle 누락과 임시로 높였던 learning rate 영향이 컸다고 정리할 수 있습니다. 이후 전체 학습은 수정된 코드 기준으로 다시 수행해야 합니다.
+
+## 20. Cross-Attention Fusion 추가 실험
+
+기존 fusion model은 RGB branch와 keypoint branch의 feature를 단순히 concat하는 구조였습니다. 그러나 단순 concat은 RGB feature의 배경, 조명, 물체 노이즈를 그대로 keypoint feature와 합치는 방식이므로, keypoint-only 모델보다 성능이 낮게 나올 수 있다고 판단했습니다.
+
+이를 개선하기 위해 `fusion_attention` 모델을 추가했습니다.
+
+핵심 아이디어는 다음과 같습니다.
+
+```text
+keypoint feature -> Query
+RGB frame feature -> Key / Value
+Cross-Attention -> keypoint가 RGB sequence에서 필요한 정보만 선택적으로 참조
+```
+
+즉, 뼈대 정보가 RGB feature를 무조건 합치는 것이 아니라 attention을 통해 RGB의 유용한 장면 정보만 읽어오도록 설계했습니다.
+
+추가한 주요 파일과 설정은 다음과 같습니다.
+
+```text
+src/models/fusion.py              # FusionAttentionModel 추가
+src/models/build.py               # fusion_attention 등록
+configs/fusion_attention.yaml     # 실험 설정 추가
+```
+
+학습 설정은 기존 fusion model과 동일하게 두었습니다.
+
+```text
+num_frames: 16
+batch_size: 16
+epochs: 30
+learning_rate: 0.0003
+pretrained: true
+freeze_backbone: true
+```
+
+Validation best checkpoint는 epoch 27에서 선택되었습니다.
+
+```text
+best validation Macro F1-score: 0.9826
+test accuracy: 0.8646
+test Macro F1-score: 0.8620
+```
+
+기존 concat fusion과 비교하면 다음과 같습니다.
+
+| Model | Valid Macro F1 | Test Accuracy | Test Macro F1 |
+|---|---:|---:|---:|
+| RGB + Keypoint Fusion (concat) | 0.9805 | 0.8523 | 0.8467 |
+| RGB + Keypoint Cross-Attention Fusion | 0.9826 | 0.8646 | 0.8620 |
+
+Cross-attention fusion은 기존 concat fusion보다 test Macro F1-score가 약 0.0153 상승했습니다. 따라서 단순 concat보다는 keypoint와 RGB feature 사이의 상호작용을 attention으로 모델링하는 방식이 더 효과적이라고 해석할 수 있습니다.
+
+다만 keypoint-only 모델의 test Macro F1-score 0.9497에는 아직 미치지 못했습니다. 이는 본 데이터셋의 XML keypoint 정보가 행동 라벨과 매우 직접적으로 연결되어 있으며, 현재 RGB branch는 frozen ResNet18 feature를 사용하기 때문에 CCTV 도메인에 충분히 적응하지 못했기 때문으로 볼 수 있습니다.
+
+향후 개선 방향은 다음과 같습니다.
+
+- ResNet18 backbone의 마지막 block 일부를 unfreeze하여 RGB branch를 CCTV 도메인에 fine-tuning합니다.
+- keypoint-only best checkpoint를 pose branch 초기값으로 사용합니다.
+- cross-attention layer를 1개에서 2개 이상으로 확장합니다.
+- class별로 RGB와 keypoint contribution을 다르게 조절하는 gating 구조를 추가합니다.

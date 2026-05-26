@@ -24,7 +24,7 @@ def model_modalities(model_name: str) -> tuple[bool, bool]:
         return True, False
     if model_name == "keypoint_lstm":
         return False, True
-    if model_name == "fusion":
+    if model_name in {"fusion", "fusion_attention"}:
         return True, True
     raise ValueError(model_name)
 
