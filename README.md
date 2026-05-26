@@ -23,6 +23,12 @@ GPU: NVIDIA GeForce RTX 5070 Ti
 
 사용 데이터는 AI Hub의 실내 편의점/매장 사람 이상행동 데이터입니다. 원본 zip은 약 253GB였고, 압축 해제 후 MP4 영상과 XML 라벨 파일만 유지했습니다. 원본 zip은 중복 저장을 피하기 위해 삭제했습니다.
 
+데이터 설명 페이지:
+
+```text
+https://aihub.or.kr/aihubdata/data/view.do?pageIndex=1&currMenu=115&topMenu=100&srchOptnCnd=OPTNCND001&searchKeyword=%ED%8E%B8%EC%9D%98%EC%A0%90&srchDetailCnd=DETAILCND001&srchOrder=ORDER001&srchPagePer=20&aihubDataSe=data&dataSetSn=71550
+```
+
 ### 가공 전 데이터
 
 AI Hub 원본 데이터는 `Training`과 `Validation`으로 나뉘어 있었고, 각 split 내부에 원천데이터 MP4와 라벨링데이터 XML zip이 포함되어 있었습니다.
