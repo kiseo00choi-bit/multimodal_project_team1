@@ -1,0 +1,14 @@
+.venv*/
+.cache/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+outputs/
+data/processed/
+data/splits/
+data/extracted/
+
+# Keep the large raw CCTV dataset local only.
+data/raw/
