@@ -1,0 +1,29 @@
+{
+  "mode": "pred_keypoint_only",
+  "checkpoint_path": "outputs\\experiment2\\checkpoints\\pred_keypoint_only_best.pt",
+  "best_epoch": 13,
+  "best_valid_macro_f1": 0.7605144053132479,
+  "test_accuracy": 0.5907692307692308,
+  "test_macro_f1": 0.5980110852744361,
+  "test_class_f1": [
+    0.9281045751633987,
+    0.2573099415204678,
+    0.9125,
+    0.43870967741935485,
+    0.5906040268456376,
+    0.39195979899497485,
+    0.2649006622516556,
+    1.0
+  ],
+  "test_class_support": [
+    81,
+    80,
+    82,
+    86,
+    80,
+    80,
+    80,
+    81
+  ],
+  "seconds": 1245.89
+}

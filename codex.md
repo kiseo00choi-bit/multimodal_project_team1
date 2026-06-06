@@ -697,6 +697,42 @@ All members should participate in:
 - final report writing
 - presentation slide preparation
 
+## Final Experiment Structure
+
+Use the organized script/output layout for final report and presentation work.
+The old root-level scripts remain for compatibility, but final reproduction should
+refer to the grouped folders below.
+
+```text
+scripts/data_processing/   # AI Hub extraction, manifests, FPS check, frame extraction, split
+scripts/experiment1/       # GT keypoint baseline experiments
+scripts/experiment2/       # predicted keypoint downstream experiments
+outputs/experiment1/       # experiment1 metrics, figures, checkpoints
+outputs/experiment2/       # experiment2 metrics, figures, checkpoints
+```
+
+Experiment1 compares:
+
+```text
+1. RGB CNN + Average Pooling
+2. RGB CNN + GRU
+3. GT Keypoint 1D-CNN + GRU
+4. RGB + GT Keypoint Fusion
+```
+
+Experiment2 compares:
+
+```text
+1. RGB Only
+2. RGB -> Predicted Keypoint Only
+3. RGB + RGB -> Predicted Keypoint Fusion
+```
+
+Experiment2 first trains an image-to-keypoint estimator using XML keypoints as
+GT, freezes that estimator, and then trains the downstream action classifiers.
+This is closer to real CCTV inference than directly feeding GT keypoints into
+the classifier.
+
 ## Things Codex Should Avoid
 
 - Do not rewrite the whole project structure unless necessary.

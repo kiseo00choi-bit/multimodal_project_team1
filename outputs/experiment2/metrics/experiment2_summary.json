@@ -1,0 +1,97 @@
+{
+  "pose_estimator": {
+    "checkpoint_path": "outputs\\experiment2\\checkpoints\\image_keypoint_estimator_best.pt",
+    "best_valid_mpjpe_norm": 0.06483973190188408,
+    "best_epoch": 8,
+    "seconds": 852.08
+  },
+  "classifiers": [
+    {
+      "mode": "rgb_only",
+      "checkpoint_path": "outputs\\experiment2\\checkpoints\\rgb_only_best.pt",
+      "best_epoch": 13,
+      "best_valid_macro_f1": 0.9264494173442677,
+      "test_accuracy": 0.7230769230769231,
+      "test_macro_f1": 0.7227776122725158,
+      "test_class_f1": [
+        0.9056603773584906,
+        0.4750957854406129,
+        0.9239766081871345,
+        0.7904191616766467,
+        0.5333333333333333,
+        0.3620689655172414,
+        0.7916666666666667,
+        1.0
+      ],
+      "test_class_support": [
+        81,
+        80,
+        82,
+        86,
+        80,
+        80,
+        80,
+        81
+      ],
+      "seconds": 1245.66
+    },
+    {
+      "mode": "pred_keypoint_only",
+      "checkpoint_path": "outputs\\experiment2\\checkpoints\\pred_keypoint_only_best.pt",
+      "best_epoch": 13,
+      "best_valid_macro_f1": 0.7605144053132479,
+      "test_accuracy": 0.5907692307692308,
+      "test_macro_f1": 0.5980110852744361,
+      "test_class_f1": [
+        0.9281045751633987,
+        0.2573099415204678,
+        0.9125,
+        0.43870967741935485,
+        0.5906040268456376,
+        0.39195979899497485,
+        0.2649006622516556,
+        1.0
+      ],
+      "test_class_support": [
+        81,
+        80,
+        82,
+        86,
+        80,
+        80,
+        80,
+        81
+      ],
+      "seconds": 1245.89
+    },
+    {
+      "mode": "pred_keypoint_fusion",
+      "checkpoint_path": "outputs\\experiment2\\checkpoints\\pred_keypoint_fusion_best.pt",
+      "best_epoch": 15,
+      "best_valid_macro_f1": 0.94498382705241,
+      "test_accuracy": 0.7246153846153847,
+      "test_macro_f1": 0.726960327875219,
+      "test_class_f1": [
+        0.8999999999999999,
+        0.40366972477064217,
+        0.9685534591194969,
+        0.8,
+        0.5714285714285714,
+        0.4057971014492754,
+        0.7662337662337663,
+        1.0
+      ],
+      "test_class_support": [
+        81,
+        80,
+        82,
+        86,
+        80,
+        80,
+        80,
+        81
+      ],
+      "seconds": 1516.15
+    }
+  ]
+}

@@ -27,6 +27,7 @@ def evaluate_checkpoint(checkpoint_path: str | Path, split: str = "test") -> dic
         use_keypoints=use_keypoints,
         image_size=int(config.get("image_size", 224)),
         action_only=bool(config.get("action_only", True)),
+        limit_per_class=config.get("eval_limit_per_class"),
     )
     loader = DataLoader(
         dataset,
@@ -66,12 +67,13 @@ def evaluate_checkpoint(checkpoint_path: str | Path, split: str = "test") -> dic
         "class_support": metrics["support"].tolist(),
         "confusion_matrix": metrics["confusion_matrix"].tolist(),
     }
-    out_path = Path("outputs/metrics") / f"{run_name}_{suffix}_best_eval.json"
+    output_root = Path(config.get("output_root", "outputs"))
+    out_path = output_root / "metrics" / f"{run_name}_{suffix}_best_eval.json"
     save_json(result, out_path)
     save_confusion(
         labels_all,
         preds_all,
-        Path("outputs/figures") / f"{run_name}_{suffix}_best_confusion.png",
+        output_root / "figures" / f"{run_name}_{suffix}_best_confusion.png",
     )
     return result
 

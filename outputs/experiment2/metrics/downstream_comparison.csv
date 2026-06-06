@@ -1,0 +1,4 @@
+mode,best_epoch,best_valid_macro_f1,test_accuracy,test_macro_f1,checkpoint_path
+rgb_only,13,0.9264494173442677,0.7230769230769231,0.7227776122725158,outputs\experiment2\checkpoints\rgb_only_best.pt
+pred_keypoint_only,13,0.7605144053132479,0.5907692307692308,0.5980110852744361,outputs\experiment2\checkpoints\pred_keypoint_only_best.pt
+pred_keypoint_fusion,15,0.94498382705241,0.7246153846153847,0.726960327875219,outputs\experiment2\checkpoints\pred_keypoint_fusion_best.pt
