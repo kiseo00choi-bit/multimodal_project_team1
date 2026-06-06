@@ -1184,3 +1184,220 @@ Cross-attention fusion은 기존 concat fusion보다 test Macro F1-score가 약 
 - keypoint-only best checkpoint를 pose branch 초기값으로 사용합니다.
 - cross-attention layer를 1개에서 2개 이상으로 확장합니다.
 - class별로 RGB와 keypoint contribution을 다르게 조절하는 gating 구조를 추가합니다.
+
+## 21. 최종 보고서용 폴더 구조 리팩토링 및 2차 실험 재정의
+
+최종 보고서와 발표 자료를 작성하기 전에 실험 코드를 더 설명하기 쉬운 구조로 정리했습니다. 기존 루트 `scripts/*.py` 파일은 호환성을 위해 남겨두고, 보고서와 재현 실험에서는 새로 정리한 폴더 구조를 기준으로 사용합니다.
+
+새 구조는 다음과 같습니다.
+
+```text
+scripts/data_processing/   # AI Hub 데이터 압축 해제, manifest 생성, frame 추출, split 생성
+scripts/experiment1/       # 1차 실험: GT keypoint 기반 baseline 비교
+scripts/experiment2/       # 2차 실험: RGB image -> predicted keypoint 기반 비교
+outputs/experiment1/       # 1차 실험 결과 저장
+outputs/experiment2/       # 2차 실험 결과 저장
+```
+
+### 21.1 데이터 가공 코드 정리
+
+데이터 가공 스크립트는 `scripts/data_processing/` 아래에 정리했습니다.
+
+```text
+scripts/data_processing/extract_aihub_dataset.py
+scripts/data_processing/build_manifest.py
+scripts/data_processing/inspect_video_fps.py
+scripts/data_processing/extract_frames_224.py
+scripts/data_processing/build_train_val_test_manifest.py
+scripts/data_processing/export_readme_examples.py
+```
+
+기본 실행 순서는 다음과 같습니다.
+
+```powershell
+.\.venv5070\Scripts\python.exe scripts\data_processing\extract_aihub_dataset.py
+.\.venv5070\Scripts\python.exe scripts\data_processing\build_manifest.py
+.\.venv5070\Scripts\python.exe scripts\data_processing\inspect_video_fps.py
+.\.venv5070\Scripts\python.exe scripts\data_processing\extract_frames_224.py
+.\.venv5070\Scripts\python.exe scripts\data_processing\build_train_val_test_manifest.py
+```
+
+### 21.2 1차 실험 코드 정리
+
+1차 실험은 XML에 라벨링된 GT keypoint를 직접 사용한 baseline 비교입니다.
+
+비교 모델은 다음 다섯 가지입니다.
+
+```text
+1. RGB CNN + Average Pooling
+2. RGB CNN + GRU
+3. GT Keypoint 1D-CNN + GRU
+4. RGB + GT Keypoint Fusion
+5. RGB + GT Keypoint Cross-Attention Fusion
+```
+
+새 실행 스크립트는 다음과 같습니다.
+
+```text
+scripts/experiment1/run_experiment1.py
+```
+
+실행 명령은 다음과 같습니다.
+
+```powershell
+.\.venv5070\Scripts\python.exe scripts\experiment1\run_experiment1.py --batch-size 32
+```
+
+결과는 `outputs/experiment1/` 아래에 저장되도록 `src/train.py`, `src/evaluate.py`에 `output_root` 설정을 추가했습니다. 기존 config에 `output_root`가 없으면 기존처럼 `outputs/`를 사용하므로 이전 실행 방식과도 호환됩니다.
+
+단, 최종 보고서에서는 1차 실험 숫자가 바뀌면 안 되므로 재학습하지 않고 기존 non-smoke 결과물을 `outputs/experiment1/`로 복사해 archive했습니다. 기존 루트 `outputs/`의 원본 결과물은 보존했습니다.
+
+보고서용 고정 결과는 다음 파일을 기준으로 사용합니다.
+
+```text
+outputs/experiment1/README.md
+outputs/experiment1/metrics/all_experiments_full.json
+outputs/experiment1/metrics/*_test_best_eval.json
+outputs/experiment1/figures/learning_curves/*.png
+```
+
+고정 결과표는 다음과 같습니다.
+
+| Model | Best Epoch | Valid Macro F1 | Test Accuracy | Test Macro F1 |
+|---|---:|---:|---:|---:|
+| CNN + Average Pooling | 19 | 0.8263 | 0.6323 | 0.6246 |
+| CNN + GRU | 17 | 0.9611 | 0.7554 | 0.7547 |
+| GT Keypoint 1D-CNN + GRU | 30 | 0.9864 | 0.9492 | 0.9497 |
+| RGB + GT Keypoint Fusion | 21 | 0.9805 | 0.8523 | 0.8467 |
+| RGB + GT Keypoint Cross-Attention Fusion | 27 | 0.9826 | 0.8646 | 0.8620 |
+
+### 21.3 2차 실험 재정의
+
+2차 실험은 1차 실험에서 GT keypoint 기반 모델이 가장 높은 성능을 보인 이유가 라벨링된 동작 GT 정보를 직접 사용했기 때문이라는 가설에서 출발합니다.
+
+따라서 2차 실험에서는 GT keypoint를 분류기에 직접 입력하지 않습니다. 대신 XML keypoint를 GT로 사용하여 RGB image에서 keypoint를 예측하는 pose estimator를 먼저 학습하고, 그 예측 keypoint를 기반으로 downstream 행동 분류 모델을 비교합니다.
+
+비교 모델은 다음 세 가지입니다.
+
+```text
+1. RGB Only
+2. RGB -> Predicted Keypoint Only
+3. RGB + Predicted Keypoint Fusion
+```
+
+새 실행 스크립트는 다음과 같습니다.
+
+```text
+scripts/experiment2/run_experiment2.py
+```
+
+실행 명령은 다음과 같습니다.
+
+```powershell
+.\.venv5070\Scripts\python.exe scripts\experiment2\run_experiment2.py --pose-epochs 8 --classifier-epochs 15 --batch-size 32
+```
+
+실행 흐름은 다음과 같습니다.
+
+```text
+1. RGB image -> predicted keypoint estimator 학습
+2. RGB-only classifier 학습 및 test 평가
+3. predicted keypoint-only classifier 학습 및 test 평가
+4. RGB + predicted keypoint fusion classifier 학습 및 test 평가
+5. 결과표, learning curve, confusion matrix 자동 저장
+```
+
+결과는 다음 위치에 저장됩니다.
+
+```text
+outputs/experiment2/README.md
+outputs/experiment2/metrics/experiment2_summary.json
+outputs/experiment2/metrics/downstream_comparison.csv
+outputs/experiment2/figures/downstream_comparison.png
+outputs/experiment2/figures/downstream_learning_curves_shared_axes.png
+outputs/experiment2/figures/*confusion.png
+```
+
+### 21.4 검증 내용
+
+새 2차 실험 스크립트는 smoke test로 전체 실행 흐름을 확인했습니다. smoke test에서는 클래스당 2개 샘플만 사용하므로 성능 해석에는 사용하지 않고, 코드 동작 검증 목적으로만 사용했습니다.
+
+검증된 흐름은 다음과 같습니다.
+
+```text
+pose_estimator smoke 학습 완료
+rgb_only smoke 학습/평가 완료
+pred_keypoint_only smoke 학습/평가 완료
+pred_keypoint_fusion smoke 학습/평가 완료
+outputs/experiment2/ 산출물 생성 확인
+```
+
+검증 후 smoke 산출물은 삭제하고, `outputs/experiment1/`, `outputs/experiment2/`에는 재학습용 빈 하위 폴더만 남겼습니다.
+
+### 21.5 모델 구조도 생성
+
+최종 보고서와 발표 자료에서 1차 실험과 2차 실험의 차이를 설명하기 위해 모델 구조도를 생성했습니다.
+
+생성 스크립트는 다음과 같습니다.
+
+```text
+scripts/plot_model_architecture_diagrams.py
+```
+
+생성된 그림은 다음 위치에 저장했습니다.
+
+```text
+docs/assets/model_architectures/experiment1_architecture.png
+docs/assets/model_architectures/experiment2_architecture.png
+```
+
+구조도 해석은 다음과 같습니다.
+
+- 1차 실험은 XML에 라벨링된 GT keypoint를 분류기에 직접 입력합니다.
+- 2차 실험은 GT keypoint를 pose estimator 학습에만 사용하고, downstream 분류기는 RGB 이미지에서 예측된 keypoint를 입력으로 사용합니다.
+- 따라서 1차 실험은 pose GT 정보의 상한 성능 확인에 가깝고, 2차 실험은 실제 CCTV 추론 환경에 더 가까운 구조입니다.
+
+### 21.6 최종 발표용 보고서 및 README 정리
+
+2차 실험 full run 완료 후 결과를 최종 발표/보고서용으로 다시 정리했습니다.
+
+생성한 최종 발표용 보고서 초안은 다음 파일입니다.
+
+```text
+docx/final_presentation_report.md
+```
+
+보고서에는 다음 내용을 포함했습니다.
+
+```text
+1. 데이터셋 설명
+2. 데이터 가공 전/후 구조
+3. train/validation/test split 방식
+4. 1차 실험 모델 구조와 결과
+5. 2차 실험 모델 구조와 결과
+6. 1차/2차 실험 차이
+7. 2차 실험 개선점
+8. 한계 및 향후 개선 방향
+9. 재현 명령
+```
+
+README도 최신 진행상황에 맞게 수정했습니다.
+
+- 1차 실험 결과 기준 파일을 `outputs/experiment1/metrics/all_experiments_full.json`로 명시했습니다.
+- 최종 발표용 보고서 위치 `docx/final_presentation_report.md`를 추가했습니다.
+- fusion 구조도 해석을 보강했습니다.
+- 모델 구조 이미지는 concat 이전에 RGB branch와 keypoint branch가 분리되어 있고, concat/fusion 단계에서 만나도록 다시 생성했습니다.
+
+최신 2차 실험 결과는 다음과 같습니다.
+
+| Model | Best Epoch | Best Valid Macro F1 | Test Accuracy | Test Macro F1 |
+|---|---:|---:|---:|---:|
+| RGB Only | 13 | 0.9264 | 0.7231 | 0.7228 |
+| RGB -> Predicted Keypoint Only | 13 | 0.7605 | 0.5908 | 0.5980 |
+| RGB + Predicted Keypoint Fusion | 15 | 0.9450 | 0.7246 | 0.7270 |
+
+해석은 다음과 같습니다.
+
+- predicted keypoint-only는 RGB-only보다 낮아, 이미지에서 예측한 keypoint에 노이즈가 있음을 확인했습니다.
+- 그러나 RGB + predicted keypoint fusion은 RGB-only보다 test Macro F1이 0.7228에서 0.7270으로 소폭 상승했습니다.
+- 따라서 predicted keypoint는 단독 정보로는 부족하지만 RGB feature와 결합했을 때 보조적인 pose 정보로 작동할 가능성이 있습니다.

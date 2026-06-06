@@ -1,0 +1,49 @@
+{
+  "run_name": "fusion_attention",
+  "best_valid_macro_f1": 0.9826375886340388,
+  "last_valid_accuracy": 0.970106075216972,
+  "last_valid_macro_f1": 0.9699891403132526,
+  "seconds": 2402.21,
+  "class_precision": [
+    1.0,
+    0.940677966101695,
+    0.9923664122137404,
+    0.9856115107913669,
+    1.0,
+    0.8551724137931035,
+    1.0,
+    1.0
+  ],
+  "class_recall": [
+    1.0,
+    0.8671875,
+    1.0,
+    1.0,
+    0.96875,
+    0.96875,
+    0.953125,
+    1.0
+  ],
+  "class_f1": [
+    1.0,
+    0.9024390243902438,
+    0.9961685823754789,
+    0.9927536231884058,
+    0.9841269841269841,
+    0.9084249084249085,
+    0.976,
+    1.0
+  ],
+  "class_support": [
+    129,
+    128,
+    130,
+    137,
+    128,
+    128,
+    128,
+    129
+  ],
+  "metrics_path": "outputs\\metrics\\fusion_attention_history.csv",
+  "checkpoint_path": "outputs\\checkpoints\\fusion_attention_best.pt"
+}

@@ -1,0 +1,29 @@
+{
+  "mode": "pred_keypoint_fusion",
+  "checkpoint_path": "outputs\\experiment2\\checkpoints\\pred_keypoint_fusion_best.pt",
+  "best_epoch": 15,
+  "best_valid_macro_f1": 0.94498382705241,
+  "test_accuracy": 0.7246153846153847,
+  "test_macro_f1": 0.726960327875219,
+  "test_class_f1": [
+    0.8999999999999999,
+    0.40366972477064217,
+    0.9685534591194969,
+    0.8,
+    0.5714285714285714,
+    0.4057971014492754,
+    0.7662337662337663,
+    1.0
+  ],
+  "test_class_support": [
+    81,
+    80,
+    82,
+    86,
+    80,
+    80,
+    80,
+    81
+  ],
+  "seconds": 1516.15
+}

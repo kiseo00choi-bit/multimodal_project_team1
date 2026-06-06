@@ -188,9 +188,11 @@ def train_one(config: dict, smoke: bool = False) -> dict:
         config["num_frames"] = int(config.get("smoke_num_frames", min(4, int(config.get("num_frames", 16)))))
         config["batch_size"] = int(config.get("smoke_batch_size", 2))
         config["pretrained"] = False
+        config["eval_limit_per_class"] = int(config.get("smoke_limit_per_class", 2))
 
     run_name = config["experiment_name"] + ("_smoke" if smoke else "")
-    run_dir = ensure_dir(Path("outputs") / "runs" / run_name)
+    output_root = Path(config.get("output_root", "outputs"))
+    run_dir = ensure_dir(output_root / "runs" / run_name)
     save_json(config, run_dir / "config.json")
 
     device = torch.device(device_name())
@@ -227,7 +229,7 @@ def train_one(config: dict, smoke: bool = False) -> dict:
         )
         if valid_metrics["macro_f1"] > best_f1:
             best_f1 = valid_metrics["macro_f1"]
-            ensure_dir("outputs/checkpoints")
+            ensure_dir(output_root / "checkpoints")
             torch.save(
                 {
                     "model_state": model.state_dict(),
@@ -235,23 +237,23 @@ def train_one(config: dict, smoke: bool = False) -> dict:
                     "epoch": epoch,
                     "valid_macro_f1": best_f1,
                 },
-                Path("outputs/checkpoints") / f"{run_name}_best.pt",
+                output_root / "checkpoints" / f"{run_name}_best.pt",
             )
             save_confusion(
                 valid_metrics["labels"],
                 valid_metrics["preds"],
-                Path("outputs/figures") / f"{run_name}_confusion.png",
+                output_root / "figures" / f"{run_name}_confusion.png",
             )
 
-    ensure_dir("outputs/metrics")
-    metrics_path = Path("outputs/metrics") / f"{run_name}_history.csv"
+    ensure_dir(output_root / "metrics")
+    metrics_path = output_root / "metrics" / f"{run_name}_history.csv"
     with metrics_path.open("w", encoding="utf-8", newline="") as file:
         writer = csv.DictWriter(file, fieldnames=list(history[0].keys()))
         writer.writeheader()
         writer.writerows(history)
     save_learning_curve(
         history,
-        Path("outputs/figures") / f"{run_name}_learning_curve.png",
+        output_root / "figures" / f"{run_name}_learning_curve.png",
         run_name,
     )
 
@@ -267,9 +269,9 @@ def train_one(config: dict, smoke: bool = False) -> dict:
         "class_f1": final_metrics["f1"].tolist(),
         "class_support": final_metrics["support"].tolist(),
         "metrics_path": str(metrics_path),
-        "checkpoint_path": str(Path("outputs/checkpoints") / f"{run_name}_best.pt"),
+        "checkpoint_path": str(output_root / "checkpoints" / f"{run_name}_best.pt"),
     }
-    save_json(result, Path("outputs/metrics") / f"{run_name}_summary.json")
+    save_json(result, output_root / "metrics" / f"{run_name}_summary.json")
     return result
 
 
