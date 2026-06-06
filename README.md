@@ -252,6 +252,8 @@ outputs/figures/learning_curves/all_models_validation_accuracy_overlay.png
 | RGB + Keypoint Fusion | 21 | 0.9805 | 0.8523 | 0.8467 |
 | RGB + Keypoint Cross-Attention Fusion | 27 | 0.9826 | 0.8646 | 0.8620 |
 
+![Experiment 1 result table](docs/assets/result_tables/experiment1_results_table.png)
+
 ### Test Class-wise F1-score
 
 | Experiment | 전도 | 파손 | 방화 | 흡연 | 유기 | 절도 | 폭행 | 교통약자 |
@@ -378,6 +380,8 @@ outputs/experiment2/figures/*confusion.png
 | RGB Only | 13 | 0.9264 | 0.7231 | 0.7228 |
 | RGB -> Predicted Keypoint Only | 13 | 0.7605 | 0.5908 | 0.5980 |
 | RGB + Predicted Keypoint Fusion | 15 | 0.9450 | 0.7246 | 0.7270 |
+
+![Experiment 2 result table](docs/assets/result_tables/experiment2_results_table.png)
 
 2차 실험에서 predicted keypoint-only는 RGB-only보다 낮았습니다. 이는 이미지에서 예측한 keypoint가 GT keypoint만큼 안정적이지 않으며, 예측 오차가 downstream 행동 분류에 누적된다는 점을 보여줍니다. 반면 RGB + predicted keypoint fusion은 RGB-only보다 test Macro F1이 0.7228에서 0.7270으로 소폭 상승했습니다. 따라서 predicted keypoint는 단독 입력으로는 부족하지만, RGB feature와 결합하면 자세 정보를 보완적으로 제공할 수 있다고 해석했습니다.
 
