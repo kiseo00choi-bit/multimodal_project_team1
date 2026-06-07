@@ -107,6 +107,7 @@ Action segment 표시
 ```text
 GT label: fall
 Prediction: fall
-Confidence: 0.9908
+Confidence: 0.7929
+Fall alert starts at frame: 110
 Duration: 약 30초
 ```

@@ -91,6 +91,7 @@ def draw_panel(
     total_frames: int,
     action_start: int,
     action_end: int,
+    display_start: int,
 ) -> np.ndarray:
     h, w = frame.shape[:2]
     panel_w = max(420, int(w * 0.34))
@@ -102,10 +103,11 @@ def draw_panel(
     pred_label = LABEL_KO[pred_id]
     confidence = float(probs[pred_id])
     top3 = np.argsort(probs)[::-1][:3]
+    in_action = display_start <= frame_idx <= action_end
+    show_prediction = in_action
 
     x = w - panel_w + 28
     y = 44
-    in_action = action_start <= frame_idx <= action_end
     status_color = (0, 220, 255) if in_action else (160, 160, 160)
 
     cv2.putText(frame, "LIVE CCTV MONITOR", (26, 44), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (50, 255, 246), 2, cv2.LINE_AA)
@@ -113,7 +115,7 @@ def draw_panel(
     cv2.putText(frame, "REC", (48, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (230, 230, 230), 2, cv2.LINE_AA)
     cv2.putText(
         frame,
-        "ACTION SEGMENT" if in_action else "CONTEXT",
+        "FALL ALERT" if in_action else "CONTEXT",
         (145, 90),
         cv2.FONT_HERSHEY_SIMPLEX,
         0.8,
@@ -124,25 +126,39 @@ def draw_panel(
 
     cv2.putText(frame, "Abnormal Behavior", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.86, (50, 255, 246), 2, cv2.LINE_AA)
     y += 46
-    cv2.putText(frame, f"Prediction: {pred_label}", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.78, (245, 245, 245), 2, cv2.LINE_AA)
+    if show_prediction:
+        prediction_text = f"Prediction: {pred_label}"
+        confidence_text = f"Confidence: {confidence:.3f}"
+        label_text = f"GT Label: {true_label}"
+    else:
+        prediction_text = "Prediction: monitoring..."
+        confidence_text = "Confidence: --"
+        label_text = "GT Label: pending"
+    cv2.putText(frame, prediction_text, (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.78, (245, 245, 245), 2, cv2.LINE_AA)
     y += 36
-    cv2.putText(frame, f"Confidence: {confidence:.3f}", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.72, (220, 240, 255), 2, cv2.LINE_AA)
+    cv2.putText(frame, confidence_text, (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.72, (220, 240, 255), 2, cv2.LINE_AA)
     y += 36
-    cv2.putText(frame, f"GT Label: {true_label}", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.72, (210, 210, 210), 2, cv2.LINE_AA)
+    cv2.putText(frame, label_text, (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.72, (210, 210, 210), 2, cv2.LINE_AA)
     y += 40
-    cv2.putText(frame, "Top-3 probabilities", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.62, (180, 200, 210), 2, cv2.LINE_AA)
-    y += 28
-
     bar_x = x
     bar_w = panel_w - 64
-    for class_id in top3:
-        label = LABEL_KO[int(class_id)]
-        value = float(probs[int(class_id)])
-        cv2.putText(frame, f"{label:16s} {value:.3f}", (bar_x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.58, (235, 235, 235), 1, cv2.LINE_AA)
-        y += 10
-        cv2.rectangle(frame, (bar_x, y), (bar_x + bar_w, y + 13), (25, 58, 68), -1)
-        cv2.rectangle(frame, (bar_x, y), (bar_x + int(bar_w * value), y + 13), (25, 217, 210), -1)
+    if show_prediction:
+        cv2.putText(frame, "Top-3 probabilities", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.62, (180, 200, 210), 2, cv2.LINE_AA)
         y += 28
+
+        for class_id in top3:
+            label = LABEL_KO[int(class_id)]
+            value = float(probs[int(class_id)])
+            cv2.putText(frame, f"{label:16s} {value:.3f}", (bar_x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.58, (235, 235, 235), 1, cv2.LINE_AA)
+            y += 10
+            cv2.rectangle(frame, (bar_x, y), (bar_x + bar_w, y + 13), (25, 58, 68), -1)
+            cv2.rectangle(frame, (bar_x, y), (bar_x + int(bar_w * value), y + 13), (25, 217, 210), -1)
+            y += 28
+    else:
+        cv2.putText(frame, "Waiting for action segment", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.62, (180, 200, 210), 2, cv2.LINE_AA)
+        y += 32
+        cv2.rectangle(frame, (bar_x, y), (bar_x + bar_w, y + 13), (25, 58, 68), -1)
+        cv2.putText(frame, "No abnormal event displayed yet", (bar_x, y + 42), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (190, 205, 210), 1, cv2.LINE_AA)
 
     progress_w = panel_w - 64
     progress_y = h - 54
@@ -194,6 +210,7 @@ def make_demo(args: argparse.Namespace) -> None:
 
     action_start = int(row.action_start_frame)
     action_end = int(row.action_end_frame)
+    display_start = max(0, action_start - args.display_lead_frames)
     true_label = str(row.label_en)
     frame_idx = 0
     written = 0
@@ -204,7 +221,7 @@ def make_demo(args: argparse.Namespace) -> None:
             break
         if scale != 1.0:
             frame = cv2.resize(frame, out_size, interpolation=cv2.INTER_AREA)
-        frame = draw_panel(frame, probs, true_label, frame_idx, total_frames, action_start, action_end)
+        frame = draw_panel(frame, probs, true_label, frame_idx, total_frames, action_start, action_end, display_start)
         writer.write(frame)
         written += 1
         frame_idx += 1
@@ -216,6 +233,7 @@ def make_demo(args: argparse.Namespace) -> None:
     print(f"video: {video_path}")
     print(f"gt={true_label} pred={LABEL_KO[int(np.argmax(probs))]} conf={float(np.max(probs)):.4f}")
     print(f"sampled action frames: {sampled_indices}")
+    print(f"display alert starts at frame: {display_start}")
     print(f"frames written={written} fps={out_fps:.2f} size={out_size}")
 
 
@@ -233,6 +251,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output-fps", type=float)
     parser.add_argument("--max-width", type=int, default=1280)
     parser.add_argument("--max-seconds", type=float, default=60.0)
+    parser.add_argument("--display-lead-frames", type=int, default=8)
     return parser.parse_args()
 
 
