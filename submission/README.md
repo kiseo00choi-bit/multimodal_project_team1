@@ -98,6 +98,7 @@ Prediction label
 Confidence
 GT label
 Top-3 probabilities
+Predicted keypoint skeleton
 Frame progress
 Action segment 표시
 ```

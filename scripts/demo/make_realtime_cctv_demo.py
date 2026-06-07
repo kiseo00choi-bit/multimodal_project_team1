@@ -25,6 +25,25 @@ from src.data.preprocessing import image_transform  # noqa: E402
 from src.utils import device_name  # noqa: E402
 
 
+JOINT_EDGES = [
+    (0, 1),
+    (1, 2),
+    (2, 3),
+    (0, 4),
+    (4, 5),
+    (5, 6),
+    (0, 7),
+    (7, 8),
+    (8, 9),
+    (9, 10),
+    (8, 11),
+    (11, 12),
+    (12, 13),
+    (8, 14),
+    (14, 15),
+    (15, 16),
+]
+
 LABEL_KO = {
     0: "fall",
     1: "broken",
@@ -61,7 +80,7 @@ def predict_clip(
     device: torch.device,
     num_frames: int,
     image_size: int,
-) -> tuple[np.ndarray, list[int]]:
+) -> tuple[np.ndarray, np.ndarray, list[int]]:
     frame_count = int(row.frame_count)
     start = max(0, min(int(row.action_start_frame), frame_count - 1))
     end = max(start, min(int(row.action_end_frame), frame_count - 1))
@@ -80,12 +99,76 @@ def predict_clip(
         pred_keypoints = pose_model(batch)
         logits = fusion_model(batch, pred_keypoints)
         probs = F.softmax(logits, dim=1)[0].detach().cpu().numpy()
-    return probs, indices
+    keypoints = pred_keypoints[0].detach().cpu().numpy().reshape(len(indices), 17, 2)
+    return probs, keypoints, indices
+
+
+def predict_frame_keypoints(
+    video_path: Path,
+    pose_model: ImageKeypointEstimator,
+    device: torch.device,
+    image_size: int,
+    max_frames: int,
+    batch_size: int = 24,
+) -> np.ndarray:
+    transform = image_transform(image_size)
+    cap = cv2.VideoCapture(str(video_path))
+    batches = []
+    outputs = []
+    read_count = 0
+    with torch.no_grad():
+        while read_count < max_frames:
+            ok, frame = cap.read()
+            if not ok:
+                break
+            rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            batches.append(transform(Image.fromarray(rgb)))
+            read_count += 1
+            if len(batches) == batch_size:
+                batch = torch.stack(batches, dim=0).unsqueeze(0).to(device)
+                outputs.append(pose_model(batch)[0].detach().cpu().numpy().reshape(len(batches), 17, 2))
+                batches = []
+        if batches:
+            batch = torch.stack(batches, dim=0).unsqueeze(0).to(device)
+            outputs.append(pose_model(batch)[0].detach().cpu().numpy().reshape(len(batches), 17, 2))
+    cap.release()
+    if not outputs:
+        return np.zeros((0, 17, 2), dtype=np.float32)
+    return np.concatenate(outputs, axis=0).astype(np.float32)
+
+
+def draw_skeleton(frame: np.ndarray, keypoints: np.ndarray, panel_w: int) -> None:
+    h, w = frame.shape[:2]
+    visible_w = w - panel_w
+    points: list[tuple[int, int] | None] = []
+    for x_norm, y_norm in keypoints:
+        if x_norm <= 0.015 or y_norm <= 0.015:
+            points.append(None)
+            continue
+        x = int(float(x_norm) * w)
+        y = int(float(y_norm) * h)
+        if x < 0 or x >= visible_w or y < 0 or y >= h:
+            points.append(None)
+        else:
+            points.append((x, y))
+
+    for a, b in JOINT_EDGES:
+        pa = points[a]
+        pb = points[b]
+        if pa is not None and pb is not None:
+            cv2.line(frame, pa, pb, (255, 90, 255), 4, cv2.LINE_AA)
+            cv2.line(frame, pa, pb, (30, 20, 30), 1, cv2.LINE_AA)
+    for point in points:
+        if point is None:
+            continue
+        cv2.circle(frame, point, 6, (50, 255, 246), -1, cv2.LINE_AA)
+        cv2.circle(frame, point, 7, (20, 20, 20), 1, cv2.LINE_AA)
 
 
 def draw_panel(
     frame: np.ndarray,
     probs: np.ndarray,
+    keypoints: np.ndarray | None,
     true_label: str,
     frame_idx: int,
     total_frames: int,
@@ -105,6 +188,8 @@ def draw_panel(
     top3 = np.argsort(probs)[::-1][:3]
     in_action = display_start <= frame_idx <= action_end
     show_prediction = in_action
+    if show_prediction and keypoints is not None:
+        draw_skeleton(frame, keypoints, panel_w)
 
     x = w - panel_w + 28
     y = 44
@@ -154,6 +239,7 @@ def draw_panel(
             cv2.rectangle(frame, (bar_x, y), (bar_x + bar_w, y + 13), (25, 58, 68), -1)
             cv2.rectangle(frame, (bar_x, y), (bar_x + int(bar_w * value), y + 13), (25, 217, 210), -1)
             y += 28
+        cv2.putText(frame, "Pose overlay: predicted keypoints", (x, y + 8), cv2.FONT_HERSHEY_SIMPLEX, 0.52, (50, 255, 246), 1, cv2.LINE_AA)
     else:
         cv2.putText(frame, "Waiting for action segment", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.62, (180, 200, 210), 2, cv2.LINE_AA)
         y += 32
@@ -189,7 +275,7 @@ def make_demo(args: argparse.Namespace) -> None:
     load_checkpoint(pose_model, args.pose_checkpoint, device)
     load_checkpoint(fusion_model, args.fusion_checkpoint, device)
 
-    probs, sampled_indices = predict_clip(row, pose_model, fusion_model, device, args.num_frames, args.image_size)
+    probs, clip_keypoints, sampled_indices = predict_clip(row, pose_model, fusion_model, device, args.num_frames, args.image_size)
 
     video_path = Path(row.video_path)
     cap = cv2.VideoCapture(str(video_path))
@@ -212,16 +298,22 @@ def make_demo(args: argparse.Namespace) -> None:
     action_end = int(row.action_end_frame)
     display_start = max(0, action_start - args.display_lead_frames)
     true_label = str(row.label_en)
+    max_frames = min(total_frames, int(args.max_seconds * source_fps)) if args.max_seconds else total_frames
+    frame_keypoints = (
+        predict_frame_keypoints(video_path, pose_model, device, args.image_size, max_frames)
+        if args.draw_keypoints
+        else np.zeros((0, 17, 2), dtype=np.float32)
+    )
     frame_idx = 0
     written = 0
-    max_frames = min(total_frames, int(args.max_seconds * source_fps)) if args.max_seconds else total_frames
     while frame_idx < max_frames:
         ok, frame = cap.read()
         if not ok:
             break
         if scale != 1.0:
             frame = cv2.resize(frame, out_size, interpolation=cv2.INTER_AREA)
-        frame = draw_panel(frame, probs, true_label, frame_idx, total_frames, action_start, action_end, display_start)
+        keypoints = frame_keypoints[frame_idx] if args.draw_keypoints and frame_idx < len(frame_keypoints) else None
+        frame = draw_panel(frame, probs, keypoints, true_label, frame_idx, total_frames, action_start, action_end, display_start)
         writer.write(frame)
         written += 1
         frame_idx += 1
@@ -233,6 +325,8 @@ def make_demo(args: argparse.Namespace) -> None:
     print(f"video: {video_path}")
     print(f"gt={true_label} pred={LABEL_KO[int(np.argmax(probs))]} conf={float(np.max(probs)):.4f}")
     print(f"sampled action frames: {sampled_indices}")
+    print(f"clip keypoints shape: {clip_keypoints.shape}")
+    print(f"frame keypoints shape: {frame_keypoints.shape}")
     print(f"display alert starts at frame: {display_start}")
     print(f"frames written={written} fps={out_fps:.2f} size={out_size}")
 
@@ -252,6 +346,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-width", type=int, default=1280)
     parser.add_argument("--max-seconds", type=float, default=60.0)
     parser.add_argument("--display-lead-frames", type=int, default=8)
+    parser.add_argument("--draw-keypoints", action=argparse.BooleanOptionalAction, default=True)
     return parser.parse_args()
 
 
