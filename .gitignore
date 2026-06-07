@@ -2,6 +2,7 @@
 .cache/
 __pycache__/
 *.py[cod]
+~$*.docx
 .pytest_cache/
 .mypy_cache/
 
