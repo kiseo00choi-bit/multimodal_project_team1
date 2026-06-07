@@ -7,7 +7,7 @@
 ```text
 1. RGB Only
 2. RGB -> Predicted Keypoint Only
-3. RGB + RGB -> Predicted Keypoint Fusion
+3. RGB + Predicted Keypoint Fusion
 ```
 
 ## 실행
