@@ -19,7 +19,7 @@
 | 5 | 유기 |
 | 6 | 절도 |
 | 7 | 폭행 |
-| 8 | 이동약자 |
+| 8 | 교통약자 |
 
 본 프로젝트의 핵심 질문은 다음과 같습니다.
 
@@ -242,6 +242,7 @@ scripts/experiment1/configs/baseline_cnn_avg.yaml
 scripts/experiment1/configs/baseline_cnn_lstm.yaml
 scripts/experiment1/configs/baseline_keypoint.yaml
 scripts/experiment1/configs/fusion.yaml
+scripts/experiment1/configs/fusion_attention.yaml
 ```
 
 각 config에는 모델 이름, batch size, epoch 수, learning rate, split 이름, frame 수 등이 들어 있습니다. `run_experiment1.py`는 config를 읽고 `src/train.py`의 `train_one()`을 호출한 뒤, best checkpoint를 test split에서 평가합니다. 따라서 1차 실험의 모든 모델은 동일한 split, 동일한 metric, 동일한 best model selection 규칙으로 비교됩니다.
@@ -328,7 +329,7 @@ Stage 2에서는 pose estimator를 고정한 상태로 predicted keypoint를 생
 docs/assets/result_tables/experiment1_results_table.png
 ```
 
-1차 실험에서 가장 높은 성능은 GT Keypoint 1D-CNN + GRU 모델의 test Macro F1 0.9497이었습니다. 이는 사람의 자세 정보가 이상행동 분류에 매우 강력한 특징임을 보여줍니다. 특히 전도, 폭행, 이동약자처럼 사람 자세와 움직임 변화가 중요한 class에서 keypoint 정보가 유리하게 작용했습니다.
+1차 실험에서 가장 높은 성능은 GT Keypoint 1D-CNN + GRU 모델의 test Macro F1 0.9497이었습니다. 이는 사람의 자세 정보가 이상행동 분류에 매우 강력한 특징임을 보여줍니다. 특히 전도, 폭행, 교통약자처럼 사람 자세와 움직임 변화가 중요한 class에서 keypoint 정보가 유리하게 작용했습니다.
 
 그러나 이 결과는 실제 추론 환경과 차이가 있습니다. 실제 CCTV 영상에는 XML GT keypoint가 제공되지 않으므로, 1차 실험 결과는 pose 정보가 충분히 정확할 때의 상한 성능에 가깝게 해석해야 합니다.
 
@@ -414,6 +415,7 @@ RTX 5070 Ti 환경에서 추론 시간을 측정한 결과, frame-wise pose esti
 본 프로젝트에서는 CCTV 이상행동 분류에서 RGB 영상 정보와 사람 자세 정보의 역할을 비교했습니다. 1차 실험에서는 GT keypoint 기반 모델이 가장 높은 성능을 보여, 자세 정보가 이상행동 분류에 매우 중요한 특징임을 확인했습니다. 그러나 실제 CCTV 추론 환경에서는 GT keypoint가 제공되지 않기 때문에, 2차 실험에서는 RGB 이미지에서 keypoint를 예측한 뒤 downstream 분류에 사용하는 구조를 설계했습니다.
 
 2차 실험 결과 predicted keypoint-only 모델은 RGB-only보다 낮았지만, RGB + predicted keypoint fusion 모델은 RGB-only보다 test Macro F1을 소폭 개선했습니다. 따라서 사람 자세 정보는 이상행동 분류에 유효하지만, 실제 적용에서는 keypoint 예측 품질이 전체 성능의 중요한 병목임을 확인했습니다.
+
 
 
 

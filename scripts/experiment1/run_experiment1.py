@@ -18,6 +18,7 @@ CONFIGS = [
     "configs/baseline_cnn_lstm.yaml",
     "configs/baseline_keypoint.yaml",
     "configs/fusion.yaml",
+    "configs/fusion_attention.yaml",
 ]
 
 

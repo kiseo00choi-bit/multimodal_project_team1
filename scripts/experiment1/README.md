@@ -11,6 +11,7 @@
 2. RGB CNN + GRU
 3. GT Keypoint 1D-CNN + GRU
 4. RGB + GT Keypoint Fusion
+5. RGB + GT Keypoint Cross-Attention Fusion
 ```
 
 ## 실행
