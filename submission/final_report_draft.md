@@ -259,6 +259,8 @@ https://github.com/kiseo00choi-bit/multimodal_project_team1.git
 
 실험 결과와 작업 기록은 `README.md`, `docs/work_log_ko.md`, `outputs/experiment1`, `outputs/experiment2`에 정리하였다. 데이터 크기가 매우 크기 때문에 원본 데이터와 frame 데이터는 GitHub에 올리지 않고, 코드와 결과 분석 파일 중심으로 공유하였다.
 
+시연 영상은 `scripts/demo/make_realtime_cctv_demo.py`로 생성하였다. 해당 스크립트는 AI Hub test split의 실제 CCTV clip을 읽고, 2차 실험의 `RGB + Predicted Keypoint Fusion` best checkpoint를 사용하여 예측 class와 confidence를 영상 위에 overlay한다. 생성된 제출용 영상은 `submission/cctv_realtime_demo.mp4`이며 약 30초 길이이다. 영상에는 `LIVE CCTV MONITOR`, 예측 class, confidence, GT label, top-3 probability, frame progress가 표시되어 실제 CCTV 관제 화면처럼 모델 추론 결과를 확인할 수 있도록 구성하였다.
+
 ### 6.4 한계 및 향후 개선 방향
 
 현재 2차 실험의 fusion 개선 폭은 크지 않다. 이는 predicted keypoint의 품질이 GT keypoint만큼 안정적이지 않고, 단순 concat fusion이 keypoint 예측 오차를 충분히 제어하지 못했기 때문일 수 있다.
@@ -276,4 +278,3 @@ https://github.com/kiseo00choi-bit/multimodal_project_team1.git
 본 프로젝트에서는 CCTV 이상행동 분류에서 RGB 영상 정보와 사람 자세 정보의 역할을 비교하였다. 1차 실험에서는 GT keypoint 기반 모델이 가장 높은 성능을 보여, 자세 정보가 이상행동 분류에 매우 중요한 특징임을 확인하였다. 그러나 실제 CCTV 추론 환경에서는 GT keypoint가 제공되지 않기 때문에, 2차 실험에서는 RGB 이미지에서 keypoint를 예측한 뒤 downstream 분류에 사용하는 구조를 설계하였다.
 
 2차 실험 결과 predicted keypoint-only 모델은 RGB-only보다 낮았지만, RGB + predicted keypoint fusion 모델은 RGB-only보다 test Macro F1을 소폭 개선하였다. 따라서 사람 자세 정보는 이상행동 분류에 유효하지만, 실제 적용에서는 keypoint 예측 품질이 전체 성능의 중요한 병목임을 확인하였다.
-
