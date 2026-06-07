@@ -1,17 +1,18 @@
 {
   "device": "cuda",
   "video_path": "data\\extracted\\Validation\\videos\\07.전도\\C_3_7_49_BU_DYB_10-17_10-25-31_CB_RGB_DF2_M2.mp4",
-  "clip_inference_ms_per_16_frame_clip": 181.95040000136942,
-  "clip_inference_fps_equivalent": 87.9360529016676,
+  "clip_inference_ms_per_16_frame_clip": 179.19330002041534,
+  "clip_inference_fps_equivalent": 89.28905264972035,
   "pose_framewise": {
     "frames": 180,
     "batch_size": 24,
-    "pose_model_time_ms": 50.91980000725016,
-    "pose_model_ms_per_frame": 0.28288777781805646,
-    "pose_model_fps": 3534.970678878764,
-    "pose_end_to_end_time_ms": 1653.2411000225693,
-    "pose_end_to_end_ms_per_frame": 9.184672777903163,
-    "pose_end_to_end_fps": 108.87704158670064
+    "pose_model_time_ms": 49.35570002999157,
+    "pose_model_ms_per_frame": 0.27419833349995315,
+    "pose_model_fps": 3646.995177671898,
+    "pose_end_to_end_time_ms": 1663.7966000125743,
+    "pose_end_to_end_ms_per_frame": 9.243314444514303,
+    "pose_end_to_end_fps": 108.18630113719406
   },
-  "note": "clip_inference measures pose estimator plus RGB+predicted-keypoint fusion classifier for one 16-frame action clip. framewise pose timing measures predicted keypoint overlay."
+  "pose_display_mode": "action",
+  "note": "clip_inference measures pose estimator plus RGB+predicted-keypoint fusion classifier for one 16-frame action clip. framewise pose timing measures predicted keypoint overlay. pose_display_mode='action' hides raw pose predictions outside the event window to avoid displaying unreliable full-frame pose regression in empty regions."
 }

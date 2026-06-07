@@ -207,6 +207,7 @@ def draw_panel(
     action_start: int,
     action_end: int,
     display_start: int,
+    pose_display_mode: str,
 ) -> np.ndarray:
     h, w = frame.shape[:2]
     panel_w = max(420, int(w * 0.34))
@@ -220,7 +221,10 @@ def draw_panel(
     top3 = np.argsort(probs)[::-1][:3]
     in_action = display_start <= frame_idx <= action_end
     show_prediction = in_action
-    if keypoints is not None:
+    show_pose = keypoints is not None and (
+        pose_display_mode == "always" or (pose_display_mode == "action" and in_action)
+    )
+    if show_pose:
         draw_skeleton(frame, keypoints, panel_w)
 
     x = w - panel_w + 28
@@ -271,13 +275,20 @@ def draw_panel(
             cv2.rectangle(frame, (bar_x, y), (bar_x + bar_w, y + 13), (25, 58, 68), -1)
             cv2.rectangle(frame, (bar_x, y), (bar_x + int(bar_w * value), y + 13), (25, 217, 210), -1)
             y += 28
-        cv2.putText(frame, "Pose overlay: predicted keypoints", (x, y + 8), cv2.FONT_HERSHEY_SIMPLEX, 0.52, (50, 255, 246), 1, cv2.LINE_AA)
+        pose_text = "Pose overlay: predicted keypoints" if show_pose else "Pose overlay: hidden"
+        cv2.putText(frame, pose_text, (x, y + 8), cv2.FONT_HERSHEY_SIMPLEX, 0.52, (50, 255, 246), 1, cv2.LINE_AA)
     else:
         cv2.putText(frame, "Waiting for action segment", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.62, (180, 200, 210), 2, cv2.LINE_AA)
         y += 32
         cv2.rectangle(frame, (bar_x, y), (bar_x + bar_w, y + 13), (25, 58, 68), -1)
         cv2.putText(frame, "No abnormal event displayed yet", (bar_x, y + 42), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (190, 205, 210), 1, cv2.LINE_AA)
-        cv2.putText(frame, "Pose overlay: predicted keypoints", (bar_x, y + 72), cv2.FONT_HERSHEY_SIMPLEX, 0.52, (50, 255, 246), 1, cv2.LINE_AA)
+        if pose_display_mode == "always" and show_pose:
+            pose_text = "Pose overlay: raw predicted keypoints"
+        elif pose_display_mode == "off":
+            pose_text = "Pose overlay: off"
+        else:
+            pose_text = "Pose overlay: hidden until event"
+        cv2.putText(frame, pose_text, (bar_x, y + 72), cv2.FONT_HERSHEY_SIMPLEX, 0.52, (50, 255, 246), 1, cv2.LINE_AA)
 
     progress_w = panel_w - 64
     progress_y = h - 54
@@ -334,9 +345,10 @@ def make_demo(args: argparse.Namespace) -> None:
     display_start = max(0, action_start - args.display_lead_frames)
     true_label = str(row.label_en)
     max_frames = min(total_frames, int(args.max_seconds * source_fps)) if args.max_seconds else total_frames
+    should_predict_pose = args.draw_keypoints and args.pose_display_mode != "off"
     frame_keypoints, pose_timing = (
         predict_frame_keypoints(video_path, pose_model, device, args.image_size, max_frames, args.pose_batch_size)
-        if args.draw_keypoints
+        if should_predict_pose
         else (np.zeros((0, 17, 2), dtype=np.float32), {})
     )
     frame_idx = 0
@@ -347,8 +359,19 @@ def make_demo(args: argparse.Namespace) -> None:
             break
         if scale != 1.0:
             frame = cv2.resize(frame, out_size, interpolation=cv2.INTER_AREA)
-        keypoints = frame_keypoints[frame_idx] if args.draw_keypoints and frame_idx < len(frame_keypoints) else None
-        frame = draw_panel(frame, probs, keypoints, true_label, frame_idx, total_frames, action_start, action_end, display_start)
+        keypoints = frame_keypoints[frame_idx] if should_predict_pose and frame_idx < len(frame_keypoints) else None
+        frame = draw_panel(
+            frame,
+            probs,
+            keypoints,
+            true_label,
+            frame_idx,
+            total_frames,
+            action_start,
+            action_end,
+            display_start,
+            args.pose_display_mode,
+        )
         writer.write(frame)
         written += 1
         frame_idx += 1
@@ -378,9 +401,12 @@ def make_demo(args: argparse.Namespace) -> None:
         "clip_inference_ms_per_16_frame_clip": float(clip_inference_ms),
         "clip_inference_fps_equivalent": float(args.num_frames * 1000.0 / max(1e-9, clip_inference_ms)),
         "pose_framewise": pose_timing,
+        "pose_display_mode": args.pose_display_mode,
         "note": (
             "clip_inference measures pose estimator plus RGB+predicted-keypoint fusion classifier "
-            "for one 16-frame action clip. framewise pose timing measures predicted keypoint overlay."
+            "for one 16-frame action clip. framewise pose timing measures predicted keypoint overlay. "
+            "pose_display_mode='action' hides raw pose predictions outside the event window to avoid "
+            "displaying unreliable full-frame pose regression in empty regions."
         ),
     }
     timing_path = output.with_name(output.stem + "_timing.json")
@@ -405,6 +431,15 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--display-lead-frames", type=int, default=8)
     parser.add_argument("--draw-keypoints", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--pose-batch-size", type=int, default=24)
+    parser.add_argument(
+        "--pose-display-mode",
+        choices=["action", "always", "off"],
+        default="action",
+        help=(
+            "action: show predicted keypoints only near the event window; "
+            "always: show raw predicted keypoints on every frame; off: hide overlay."
+        ),
+    )
     return parser.parse_args()
 
 
