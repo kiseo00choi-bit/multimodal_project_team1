@@ -385,6 +385,28 @@ outputs/experiment2/figures/*confusion.png
 
 2차 실험에서 predicted keypoint-only는 RGB-only보다 낮았습니다. 이는 이미지에서 예측한 keypoint가 GT keypoint만큼 안정적이지 않으며, 예측 오차가 downstream 행동 분류에 누적된다는 점을 보여줍니다. 반면 RGB + predicted keypoint fusion은 RGB-only보다 test Macro F1이 0.7228에서 0.7270으로 소폭 상승했습니다. 따라서 predicted keypoint는 단독 입력으로는 부족하지만, RGB feature와 결합하면 자세 정보를 보완적으로 제공할 수 있다고 해석했습니다.
 
+### Realtime CCTV Demo and Inference Time
+
+최종 시연 영상은 `scripts/demo/make_realtime_cctv_demo.py`로 생성했습니다. 사용한 모델은 2차 실험의 `RGB + Predicted Keypoint Fusion` best checkpoint입니다. 영상에 표시되는 skeleton은 XML GT keypoint가 아니라, `ImageKeypointEstimator`가 RGB frame만 보고 매 frame 예측한 predicted keypoint입니다.
+
+```powershell
+.\.venv5070\Scripts\python.exe scripts\demo\make_realtime_cctv_demo.py --class-id 0 --sample-index 7 --output outputs\demo\cctv_realtime_demo.mp4 --max-seconds 60 --display-lead-frames 8
+```
+
+현재 pose estimator는 사람 detector 없이 전체 CCTV frame에서 관절 좌표를 직접 회귀하므로, 사람이 작거나 배경과 겹치는 구간에서는 keypoint가 사람 위치와 어긋날 수 있습니다. 이 현상은 overlay 오류가 아니라 predicted keypoint 품질의 한계이며, 2차 실험에서 predicted keypoint-only 성능이 RGB-only보다 낮았던 이유와도 연결됩니다.
+
+RTX 5070 Ti 기준 측정한 추론 시간은 다음과 같습니다.
+
+| 항목 | 측정값 |
+|---|---:|
+| Frame-wise pose model-only | 0.28 ms/frame |
+| Frame-wise pose end-to-end | 9.18 ms/frame |
+| Pose end-to-end throughput | 108.88 FPS |
+| 16-frame fusion clip inference | 181.95 ms/clip |
+| 16-frame equivalent throughput | 87.94 frame/s |
+
+원본 CCTV가 약 3 FPS 데이터이므로 단일 CCTV stream 기준으로는 실시간 적용 가능성이 있습니다. 다만 실제 매장 다중 카메라 환경에서는 batching, video decode 최적화, 사람 검출 기반 pose estimator 도입이 필요합니다.
+
 ## Training Stability Note
 
 train/val/test 구조로 바꾼 뒤 `baseline_cnn_avg`가 거의 수렴하지 않는 문제가 있었습니다. 원인은 DataLoader shuffle 조건이 예전 split 이름인 `Training`에만 걸려 있고 새 split 이름인 `train`에는 적용되지 않았기 때문입니다. 현재는 `train`과 `Training` 모두 학습 시 shuffle되도록 수정했습니다.

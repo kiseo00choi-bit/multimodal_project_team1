@@ -9,7 +9,8 @@
 | 1차 보고서 | `submission/final_report_draft.md` | Word 파일로 변환/편집 후 제출 |
 | 발표 자료 | 별도 PPT 작성 | README/보고서의 그림과 표 사용 |
 | 코드 | `submission/team1_code_submission.zip` | `.py` 파일이 5개 이상이므로 코드만 압축 |
-| 시연 동영상 | `submission/cctv_realtime_demo.mp4` | 약 30초 |
+| 시연 동영상 | `submission/cctv_realtime_demo.mp4` | 실제 CCTV clip 기반 데모 |
+| 추론 시간 로그 | `submission/cctv_realtime_demo_timing.json` | RTX 5070 Ti 기준 측정 |
 
 ## 코드 압축 대상
 
@@ -85,7 +86,7 @@ summary: outputs/submission_smoke/README.md 생성 확인
 실제 CCTV clip 기반 시연 영상 생성:
 
 ```powershell
-.\.venv5070\Scripts\python.exe scripts\demo\make_realtime_cctv_demo.py --class-id 0 --sample-index 0 --output outputs\demo\cctv_realtime_demo.mp4
+.\.venv5070\Scripts\python.exe scripts\demo\make_realtime_cctv_demo.py --class-id 0 --sample-index 7 --output outputs\demo\cctv_realtime_demo.mp4 --max-seconds 60 --display-lead-frames 8
 ```
 
 ## 시연 영상 설명
@@ -103,6 +104,8 @@ Frame progress
 Action segment 표시
 ```
 
+영상에 표시되는 skeleton은 XML GT가 아니라 `ImageKeypointEstimator`가 RGB frame만 보고 예측한 predicted keypoint입니다. 따라서 사람 detector 없이 전체 CCTV frame에서 관절 좌표를 직접 회귀하는 현재 구조에서는 사람이 작거나 배경이 복잡한 구간에서 skeleton이 사람 위치와 어긋날 수 있습니다. 이전 버전에서는 fall alert 이전 구간의 keypoint 표시를 숨겼지만, 현재 버전은 실제 실시간 pose 추론처럼 모든 frame에 predicted keypoint를 표시합니다.
+
 생성된 예시 영상의 결과:
 
 ```text
@@ -110,5 +113,18 @@ GT label: fall
 Prediction: fall
 Confidence: 0.7929
 Fall alert starts at frame: 110
-Duration: 약 30초
+Frames written: 180
+Display FPS: 6.00
+Resolution: 1280x720
 ```
+
+RTX 5070 Ti 환경에서 측정한 추론 시간:
+
+```text
+Frame-wise pose model-only: 0.28 ms/frame
+Frame-wise pose end-to-end: 9.18 ms/frame, 약 108.88 FPS
+16-frame fusion clip inference: 181.95 ms/clip
+16-frame equivalent throughput: 약 87.94 frame/s
+```
+
+원본 CCTV가 약 3 FPS 데이터였기 때문에 단일 CCTV stream 기준으로는 실시간 적용 가능성이 있습니다. 다만 여러 카메라를 동시에 처리하려면 batching, 영상 decode 최적화, 사람 검출기를 결합한 pose estimation 개선이 필요합니다.

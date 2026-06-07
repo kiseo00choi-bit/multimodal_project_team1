@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
+import time
 from pathlib import Path
 
 import cv2
@@ -62,6 +64,11 @@ def load_checkpoint(model: torch.nn.Module, path: str | Path, device: torch.devi
     model.eval()
 
 
+def sync_if_cuda(device: torch.device) -> None:
+    if device.type == "cuda":
+        torch.cuda.synchronize(device)
+
+
 def choose_sample(manifest: Path, split: str, class_id: int | None, sample_index: int) -> pd.Series:
     df = pd.read_csv(manifest, dtype={"class_code": str})
     df = df[df["split"] == split].copy()
@@ -80,7 +87,7 @@ def predict_clip(
     device: torch.device,
     num_frames: int,
     image_size: int,
-) -> tuple[np.ndarray, np.ndarray, list[int]]:
+) -> tuple[np.ndarray, np.ndarray, list[int], float]:
     frame_count = int(row.frame_count)
     start = max(0, min(int(row.action_start_frame), frame_count - 1))
     end = max(start, min(int(row.action_end_frame), frame_count - 1))
@@ -96,11 +103,15 @@ def predict_clip(
     batch = torch.stack(frames, dim=0).unsqueeze(0).to(device)
 
     with torch.no_grad():
+        sync_if_cuda(device)
+        start_time = time.perf_counter()
         pred_keypoints = pose_model(batch)
         logits = fusion_model(batch, pred_keypoints)
+        sync_if_cuda(device)
+        clip_inference_ms = (time.perf_counter() - start_time) * 1000.0
         probs = F.softmax(logits, dim=1)[0].detach().cpu().numpy()
     keypoints = pred_keypoints[0].detach().cpu().numpy().reshape(len(indices), 17, 2)
-    return probs, keypoints, indices
+    return probs, keypoints, indices, clip_inference_ms
 
 
 def predict_frame_keypoints(
@@ -110,12 +121,14 @@ def predict_frame_keypoints(
     image_size: int,
     max_frames: int,
     batch_size: int = 24,
-) -> np.ndarray:
+) -> tuple[np.ndarray, dict]:
     transform = image_transform(image_size)
     cap = cv2.VideoCapture(str(video_path))
     batches = []
     outputs = []
     read_count = 0
+    model_time_ms = 0.0
+    wall_start = time.perf_counter()
     with torch.no_grad():
         while read_count < max_frames:
             ok, frame = cap.read()
@@ -126,15 +139,34 @@ def predict_frame_keypoints(
             read_count += 1
             if len(batches) == batch_size:
                 batch = torch.stack(batches, dim=0).unsqueeze(0).to(device)
+                sync_if_cuda(device)
+                model_start = time.perf_counter()
                 outputs.append(pose_model(batch)[0].detach().cpu().numpy().reshape(len(batches), 17, 2))
+                sync_if_cuda(device)
+                model_time_ms += (time.perf_counter() - model_start) * 1000.0
                 batches = []
         if batches:
             batch = torch.stack(batches, dim=0).unsqueeze(0).to(device)
+            sync_if_cuda(device)
+            model_start = time.perf_counter()
             outputs.append(pose_model(batch)[0].detach().cpu().numpy().reshape(len(batches), 17, 2))
+            sync_if_cuda(device)
+            model_time_ms += (time.perf_counter() - model_start) * 1000.0
     cap.release()
+    wall_time_ms = (time.perf_counter() - wall_start) * 1000.0
+    stats = {
+        "frames": int(read_count),
+        "batch_size": int(batch_size),
+        "pose_model_time_ms": float(model_time_ms),
+        "pose_model_ms_per_frame": float(model_time_ms / max(1, read_count)),
+        "pose_model_fps": float(1000.0 / max(1e-9, model_time_ms / max(1, read_count))),
+        "pose_end_to_end_time_ms": float(wall_time_ms),
+        "pose_end_to_end_ms_per_frame": float(wall_time_ms / max(1, read_count)),
+        "pose_end_to_end_fps": float(1000.0 / max(1e-9, wall_time_ms / max(1, read_count))),
+    }
     if not outputs:
-        return np.zeros((0, 17, 2), dtype=np.float32)
-    return np.concatenate(outputs, axis=0).astype(np.float32)
+        return np.zeros((0, 17, 2), dtype=np.float32), stats
+    return np.concatenate(outputs, axis=0).astype(np.float32), stats
 
 
 def draw_skeleton(frame: np.ndarray, keypoints: np.ndarray, panel_w: int) -> None:
@@ -188,7 +220,7 @@ def draw_panel(
     top3 = np.argsort(probs)[::-1][:3]
     in_action = display_start <= frame_idx <= action_end
     show_prediction = in_action
-    if show_prediction and keypoints is not None:
+    if keypoints is not None:
         draw_skeleton(frame, keypoints, panel_w)
 
     x = w - panel_w + 28
@@ -245,6 +277,7 @@ def draw_panel(
         y += 32
         cv2.rectangle(frame, (bar_x, y), (bar_x + bar_w, y + 13), (25, 58, 68), -1)
         cv2.putText(frame, "No abnormal event displayed yet", (bar_x, y + 42), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (190, 205, 210), 1, cv2.LINE_AA)
+        cv2.putText(frame, "Pose overlay: predicted keypoints", (bar_x, y + 72), cv2.FONT_HERSHEY_SIMPLEX, 0.52, (50, 255, 246), 1, cv2.LINE_AA)
 
     progress_w = panel_w - 64
     progress_y = h - 54
@@ -275,7 +308,9 @@ def make_demo(args: argparse.Namespace) -> None:
     load_checkpoint(pose_model, args.pose_checkpoint, device)
     load_checkpoint(fusion_model, args.fusion_checkpoint, device)
 
-    probs, clip_keypoints, sampled_indices = predict_clip(row, pose_model, fusion_model, device, args.num_frames, args.image_size)
+    probs, clip_keypoints, sampled_indices, clip_inference_ms = predict_clip(
+        row, pose_model, fusion_model, device, args.num_frames, args.image_size
+    )
 
     video_path = Path(row.video_path)
     cap = cv2.VideoCapture(str(video_path))
@@ -299,10 +334,10 @@ def make_demo(args: argparse.Namespace) -> None:
     display_start = max(0, action_start - args.display_lead_frames)
     true_label = str(row.label_en)
     max_frames = min(total_frames, int(args.max_seconds * source_fps)) if args.max_seconds else total_frames
-    frame_keypoints = (
-        predict_frame_keypoints(video_path, pose_model, device, args.image_size, max_frames)
+    frame_keypoints, pose_timing = (
+        predict_frame_keypoints(video_path, pose_model, device, args.image_size, max_frames, args.pose_batch_size)
         if args.draw_keypoints
-        else np.zeros((0, 17, 2), dtype=np.float32)
+        else (np.zeros((0, 17, 2), dtype=np.float32), {})
     )
     frame_idx = 0
     written = 0
@@ -327,8 +362,30 @@ def make_demo(args: argparse.Namespace) -> None:
     print(f"sampled action frames: {sampled_indices}")
     print(f"clip keypoints shape: {clip_keypoints.shape}")
     print(f"frame keypoints shape: {frame_keypoints.shape}")
+    print(f"clip fusion inference: {clip_inference_ms:.2f} ms per 16-frame clip")
+    if pose_timing:
+        print(
+            "frame-wise pose inference: "
+            f"{pose_timing['pose_model_ms_per_frame']:.2f} ms/frame model-only, "
+            f"{pose_timing['pose_end_to_end_ms_per_frame']:.2f} ms/frame end-to-end"
+        )
     print(f"display alert starts at frame: {display_start}")
     print(f"frames written={written} fps={out_fps:.2f} size={out_size}")
+
+    timing = {
+        "device": str(device),
+        "video_path": str(video_path),
+        "clip_inference_ms_per_16_frame_clip": float(clip_inference_ms),
+        "clip_inference_fps_equivalent": float(args.num_frames * 1000.0 / max(1e-9, clip_inference_ms)),
+        "pose_framewise": pose_timing,
+        "note": (
+            "clip_inference measures pose estimator plus RGB+predicted-keypoint fusion classifier "
+            "for one 16-frame action clip. framewise pose timing measures predicted keypoint overlay."
+        ),
+    }
+    timing_path = output.with_name(output.stem + "_timing.json")
+    timing_path.write_text(json.dumps(timing, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"wrote timing: {timing_path}")
 
 
 def parse_args() -> argparse.Namespace:
@@ -347,6 +404,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-seconds", type=float, default=60.0)
     parser.add_argument("--display-lead-frames", type=int, default=8)
     parser.add_argument("--draw-keypoints", action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("--pose-batch-size", type=int, default=24)
     return parser.parse_args()
 
 

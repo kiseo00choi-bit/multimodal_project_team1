@@ -259,19 +259,24 @@ https://github.com/kiseo00choi-bit/multimodal_project_team1.git
 
 실험 결과와 작업 기록은 `README.md`, `docs/work_log_ko.md`, `outputs/experiment1`, `outputs/experiment2`에 정리하였다. 데이터 크기가 매우 크기 때문에 원본 데이터와 frame 데이터는 GitHub에 올리지 않고, 코드와 결과 분석 파일 중심으로 공유하였다.
 
-시연 영상은 `scripts/demo/make_realtime_cctv_demo.py`로 생성하였다. 해당 스크립트는 AI Hub test split의 실제 CCTV clip을 읽고, 2차 실험의 `RGB + Predicted Keypoint Fusion` best checkpoint를 사용하여 예측 class와 confidence를 영상 위에 overlay한다. 또한 pose estimator가 각 frame에서 예측한 predicted keypoint skeleton을 함께 표시하여, 2차 실험에서 RGB 영상으로부터 추정한 자세 정보가 downstream fusion 분류에 사용되는 과정을 시각적으로 확인할 수 있도록 하였다. 생성된 제출용 영상은 `submission/cctv_realtime_demo.mp4`이며 약 30초 길이이다. 영상에는 `LIVE CCTV MONITOR`, 예측 class, confidence, GT label, top-3 probability, predicted keypoint skeleton, frame progress가 표시되어 실제 CCTV 관제 화면처럼 모델 추론 결과를 확인할 수 있도록 구성하였다.
+시연 영상은 `scripts/demo/make_realtime_cctv_demo.py`로 생성하였다. 해당 스크립트는 AI Hub test split의 실제 CCTV clip을 읽고, 2차 실험의 `RGB + Predicted Keypoint Fusion` best checkpoint를 사용하여 예측 class와 confidence를 영상 위에 overlay한다. 또한 pose estimator가 각 frame에서 예측한 predicted keypoint skeleton을 함께 표시하여, 2차 실험에서 RGB 영상으로부터 추정한 자세 정보가 downstream fusion 분류에 사용되는 과정을 시각적으로 확인할 수 있도록 하였다. 생성된 제출용 영상은 `submission/cctv_realtime_demo.mp4`이다. 영상에는 `LIVE CCTV MONITOR`, 예측 class, confidence, GT label, top-3 probability, predicted keypoint skeleton, frame progress가 표시되어 실제 CCTV 관제 화면처럼 모델 추론 결과를 확인할 수 있도록 구성하였다.
+
+시연 영상의 skeleton은 XML GT keypoint가 아니라 RGB frame만 입력받은 pose estimator의 실제 예측 결과이다. 따라서 사람 detector 없이 전체 CCTV frame에서 관절 좌표를 직접 회귀하는 현재 구조에서는 사람이 화면에서 작게 보이거나 배경 물체와 겹치는 구간에서 keypoint가 사람 위치와 어긋날 수 있다. 이 현상은 시각화 오류라기보다 현재 pose estimator의 한계로 해석하는 것이 적절하다. 이전 시연에서는 fall alert 이전 구간의 keypoint 표시를 숨겼지만, 최종 시연에서는 실제 실시간 추론 상황을 보여주기 위해 alert 이전 frame에서도 predicted keypoint를 계속 표시하도록 수정하였다.
+
+RTX 5070 Ti 환경에서 추론 시간을 측정한 결과, frame-wise pose estimator의 model-only 시간은 약 0.28 ms/frame, 영상 decode와 preprocessing을 포함한 end-to-end pose 추론은 약 9.18 ms/frame이었다. 16 frame clip에 대해 pose estimator와 RGB+predicted-keypoint fusion classifier를 함께 실행한 clip 단위 추론 시간은 약 181.95 ms/clip이었다. 이는 16 frame 기준 약 87.94 frame/s에 해당한다. 본 데이터의 원본 CCTV는 약 3 FPS 수준이므로 단일 CCTV stream 기준으로는 실시간 적용 가능성이 있다고 볼 수 있다. 다만 실제 매장 환경에서 여러 CCTV stream을 동시에 처리하려면 batching, 영상 decode 최적화, 더 안정적인 사람 검출 기반 pose estimator가 필요하다.
 
 ### 6.4 한계 및 향후 개선 방향
 
-현재 2차 실험의 fusion 개선 폭은 크지 않다. 이는 predicted keypoint의 품질이 GT keypoint만큼 안정적이지 않고, 단순 concat fusion이 keypoint 예측 오차를 충분히 제어하지 못했기 때문일 수 있다.
+현재 2차 실험의 fusion 개선 폭은 크지 않다. 이는 predicted keypoint의 품질이 GT keypoint만큼 안정적이지 않고, 단순 concat fusion이 keypoint 예측 오차를 충분히 제어하지 못했기 때문일 수 있다. 특히 시연 영상에서 확인한 것처럼 predicted keypoint가 실제 사람 위치와 어긋나는 경우 downstream classifier에는 자세 정보가 아니라 노이즈가 추가될 수 있다.
 
 향후 개선 방향은 다음과 같다.
 
 1. pose estimator를 더 강한 구조로 개선한다.
 2. ResNet18 backbone 일부를 unfreeze하여 CCTV 도메인에 fine-tuning한다.
-3. keypoint confidence 또는 visibility를 fusion weight에 반영한다.
-4. 단순 concat 대신 cross-attention 또는 gating 기반 fusion을 적용한다.
-5. pose estimator와 action classifier를 end-to-end로 fine-tuning한다.
+3. YOLO 계열 사람 검출기 또는 OpenPose/HRNet 계열 pose estimator처럼 사람 영역을 먼저 찾는 구조를 검토한다.
+4. keypoint confidence 또는 visibility를 fusion weight에 반영한다.
+5. 단순 concat 대신 cross-attention 또는 gating 기반 fusion을 적용한다.
+6. pose estimator와 action classifier를 end-to-end로 fine-tuning한다.
 
 ## 7. 결론
 
