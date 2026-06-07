@@ -12,6 +12,21 @@
 | 시연 동영상 | `submission/cctv_realtime_demo.mp4` | 실제 CCTV clip 기반 데모 |
 | 추론 시간 로그 | `submission/cctv_realtime_demo_timing.json` | RTX 5070 Ti 기준 측정 |
 
+## 1차 실험 / 2차 실험 파일 구분
+
+| 구분 | 목적 | 제출 폴더/파일 | 주요 내용 |
+|---|---|---|---|
+| 데이터 가공 공통 | MP4/XML 정리, frame 추출, split 생성 | `scripts/data_processing/` | 1차와 2차 실험이 공통으로 사용하는 데이터 전처리 코드 |
+| 1차 실험 | RGB baseline과 XML GT keypoint 기반 모델 비교 | `submission/experiment1/` | GT keypoint를 직접 사용한 baseline 결과 요약과 결과표 |
+| 1차 실험 코드 | 1차 모델 학습/평가 | `scripts/experiment1/` | RGB CNN, RGB GRU, GT keypoint, RGB+GT keypoint fusion |
+| 1차 실험 원본 결과 | 1차 결과 archive | `outputs/experiment1/` | metrics, figures, run config, checkpoint 저장 위치 |
+| 2차 실험 | 실제 추론 환경을 반영한 predicted keypoint 기반 비교 | `submission/experiment2/` | RGB-only, predicted keypoint-only, RGB+predicted keypoint fusion 결과 요약과 결과표 |
+| 2차 실험 코드 | pose estimator와 downstream classifier 학습/평가 | `scripts/experiment2/` | RGB image -> keypoint 예측 후 3개 downstream 모델 비교 |
+| 2차 실험 원본 결과 | 2차 결과 archive | `outputs/experiment2/` | metrics, learning curve, train log, checkpoint 저장 위치 |
+| 2차 시연 | 실제 CCTV clip 추론 | `submission/cctv_realtime_demo.mp4` | 2차 실험의 RGB + Predicted Keypoint Fusion 모델 사용 |
+
+요약하면 1차 실험은 `GT keypoint를 직접 넣었을 때의 성능 확인`, 2차 실험은 `실제처럼 RGB에서 keypoint를 예측한 뒤 사용하는 구조 확인`입니다.
+
 ## 코드 압축 대상
 
 코드 zip에는 다음만 포함합니다.
