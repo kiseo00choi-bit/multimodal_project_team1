@@ -6,7 +6,8 @@
 
 | 제출 항목 | 준비 파일 | 비고 |
 |---|---|---|
-| 1차 보고서 | `submission/final_report_draft.md` | Word 파일로 변환/편집 후 제출 |
+| 1차 보고서 | `submission/final_report_draft.docx` | Word 제출용 초안 |
+| 보고서 원본 | `submission/final_report_draft.md` | 수정/재변환용 Markdown 원본 |
 | 발표 자료 | 별도 PPT 작성 | README/보고서의 그림과 표 사용 |
 | 코드 | `submission/team1_code_submission.zip` | `.py` 파일이 5개 이상이므로 코드만 압축 |
 | 시연 동영상 | `submission/cctv_realtime_demo.mp4` | 실제 CCTV clip 기반 데모 |
