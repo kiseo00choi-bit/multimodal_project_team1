@@ -3,6 +3,7 @@
 __pycache__/
 *.py[cod]
 ~$*.docx
+submission/team1_code_submission/
 .pytest_cache/
 .mypy_cache/
 

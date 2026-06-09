@@ -31,19 +31,15 @@
 
 ## 코드 압축 대상
 
-코드 zip에는 다음만 포함합니다.
+코드 zip에는 학습 코드, 데이터 가공 코드, 파라미터 파일만 포함합니다.
 
 ```text
-src/
-scripts/data_processing/
-scripts/experiment1/
-scripts/experiment2/
-scripts/demo/
-scripts/plot_model_architecture_diagrams.py
-scripts/plot_result_tables.py
-configs/
-requirements.txt
-README.md
+src/                         # Dataset, model, train/evaluate utility
+scripts/data_processing/      # AI Hub preprocessing scripts
+scripts/experiment1/          # experiment1 training script
+scripts/experiment2/          # experiment2 training script
+configs/                      # experiment1 YAML configs and experiment2 default params
+requirements.txt              # Python package list
 ```
 
 포함하지 않는 항목:
@@ -54,7 +50,12 @@ outputs/
 .venv5070/
 __pycache__/
 *.pt checkpoint
+scripts/demo/
+scripts/plot_*.py
+README.md
 ```
+
+2차 실험은 별도 YAML config를 사용하지 않고 `scripts/experiment2/run_experiment2.py`의 argparse 인자로 설정을 관리합니다. 제출 ZIP에는 이 기본 실행값을 확인할 수 있도록 `configs/experiment2_default_params.json`을 함께 포함했습니다.
 
 ## 재현 명령
 
