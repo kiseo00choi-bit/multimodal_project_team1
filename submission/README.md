@@ -34,11 +34,13 @@
 코드 zip에는 학습 코드, 데이터 가공 코드, 파라미터 파일만 포함합니다.
 
 ```text
-src/                         # Dataset, model, train/evaluate utility
-scripts/data_processing/      # AI Hub preprocessing scripts
-scripts/experiment1/          # experiment1 training script
-scripts/experiment2/          # experiment2 training script
-configs/                      # experiment1 YAML configs and experiment2 default params
+src/data/                     # Dataset, XML parser, frame sampling, preprocessing
+src/models/                   # 1차/2차 RGB, keypoint, fusion model definitions
+src/train.py, src/evaluate.py # common training, validation, test evaluation utilities
+scripts/data_processing/      # AI Hub unzip, manifest, FPS check, frame extraction, split scripts
+scripts/experiment1/          # experiment1 runner: GT keypoint baseline and fusion experiments
+scripts/experiment2/          # experiment2 runner: RGB -> predicted keypoint -> classification
+configs/                      # experiment1 YAML configs and experiment2 default parameter JSON
 requirements.txt              # Python package list
 ```
 
@@ -55,7 +57,7 @@ scripts/plot_*.py
 README.md
 ```
 
-2차 실험은 별도 YAML config를 사용하지 않고 `scripts/experiment2/run_experiment2.py`의 argparse 인자로 설정을 관리합니다. 제출 ZIP에는 이 기본 실행값을 확인할 수 있도록 `configs/experiment2_default_params.json`을 함께 포함했습니다.
+2차 실험은 별도 YAML config를 사용하지 않고 `scripts/experiment2/run_experiment2.py`의 argparse 인자로 설정을 관리합니다. 제출 ZIP에는 기본 실행값을 확인할 수 있도록 `configs/experiment2_default_params.json`을 함께 포함했습니다. 2차 모델 정의는 실행 파일에 직접 두지 않고 `src/models/experiment2.py`로 분리했습니다.
 
 ## 재현 명령
 
